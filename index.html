@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIG (Modelli Interattivi di Geotecnica)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <header class="app-header">
+        <img class="institution-banner" src="logo-dst-white.png" alt="Università degli Studi di Firenze — Dipartimento di Scienze della Terra (DST) — Eccellenza 2023-2027">
+        <div class="app-title-group">
+            <span class="app-title">MIG</span>
+            <span class="app-title-sub">Modelli Interattivi di Geotecnica</span>
+        </div>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Moduli">
+        <button class="tab-btn" type="button" role="tab" data-tab="granulometria" aria-selected="false">Granulometria e Classificazione</button>
+        <button class="tab-btn" type="button" role="tab" data-tab="sifonamento" aria-selected="false">L'acqua nel Terreno</button>
+        <button class="tab-btn" type="button" role="tab" data-tab="tensioni" aria-selected="false">Tensioni e Deformazione nelle Terre</button>
+        <button class="tab-btn" type="button" role="tab" data-tab="edometrica" aria-selected="false">Compressione Edometrica</button>
+        <button class="tab-btn" type="button" role="tab" data-tab="taglio" aria-selected="false">Resistenza al Taglio</button>
+        <button class="tab-btn" type="button" role="tab" data-tab="differenziale" aria-selected="false">Cedimenti delle Fondazioni</button>
+    </nav>
+
+    <main class="dashboard">
+        <div id="tabs-empty-state" class="tabs-empty-state">
+            <p>Seleziona un modulo qui sopra per iniziare.</p>
+        </div>
+
+        <!-- Modulo 4: Granulometria e Classificazione -->
+        <section class="module-card" data-tab-panel="granulometria" hidden>
+            <header class="module-header">
+                <h2>Granulometria e Classificazione delle Terre</h2>
+                <p>Inserisci le percentuali di passante ai vari diametri: curva granulometrica, denominazione AGI, classificazione USCS e diagramma di Casagrande si aggiornano insieme</p>
+            </header>
+
+            <div class="module-content gran-content">
+                <div class="gran-top-row">
+                    <div class="controls-panel gran-input-panel">
+                        <h3 class="gran-panel-title">Dati granulometrici</h3>
+                        <div class="gran-table-wrap">
+                            <table class="gran-table">
+                                <thead>
+                                    <tr><th>Diametro (mm)</th><th>Passante (%)</th><th></th></tr>
+                                </thead>
+                                <tbody id="gran-table-body"></tbody>
+                            </table>
+                        </div>
+                        <button type="button" id="gran-add-row" class="gran-btn">+ Aggiungi punto</button>
+                    </div>
+
+                    <div class="gran-main-chart">
+                        <div class="gran-chart-header">
+                            <h3 class="gran-panel-title">Curva granulometrica</h3>
+                            <div class="gran-d-buttons">
+                                <button type="button" class="gran-d-btn" data-d="10">D<sub>10</sub></button>
+                                <button type="button" class="gran-d-btn" data-d="30">D<sub>30</sub></button>
+                                <button type="button" class="gran-d-btn" data-d="60">D<sub>60</sub></button>
+                            </div>
+                        </div>
+                        <div id="gran-d-info" class="gran-d-info"></div>
+                        <div class="chart-panel gran-chart-panel gran-chart-main"><canvas id="granChart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="gran-mid-row">
+                    <div class="controls-panel gran-atterberg-panel">
+                        <h3 class="gran-panel-title">Limiti di Atterberg</h3>
+                        <div class="gran-atterberg-controls">
+                            <div class="gran-atterberg-field">
+                                <label for="gran-wl">Limite liquido w<sub>L</sub> (%)</label>
+                                <input type="number" id="gran-wl" min="0" max="150" step="0.5" placeholder="es. 26">
+                            </div>
+                            <div class="gran-atterberg-field">
+                                <label for="gran-wp">Limite plastico w<sub>P</sub> (%)</label>
+                                <input type="number" id="gran-wp" min="0" max="120" step="0.5" placeholder="es. 17">
+                            </div>
+                            <label class="gran-checkbox gran-atterberg-checkbox">
+                                <input type="checkbox" id="gran-organic"> Sospetta componente organica (colore/odore)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="gran-result-card">
+                        <h3 class="gran-panel-title">Frazioni granulometriche (AGI/MIT)</h3>
+                        <div id="gran-fractions" class="gran-fraction-grid"></div>
+                    </div>
+                    <div class="gran-result-card">
+                        <h3 class="gran-panel-title">Coefficienti di gradazione</h3>
+                        <div id="gran-coeffs" class="gran-fraction-grid"></div>
+                    </div>
+                </div>
+
+                <div class="gran-bottom-row">
+                    <div class="gran-chart-box gran-chart-secondary-full">
+                        <h3 class="gran-panel-title">Diagramma di plasticità di Casagrande</h3>
+                        <div class="chart-panel gran-chart-panel"><canvas id="casagrandeChart"></canvas></div>
+                    </div>
+
+                    <div class="gran-classification-panel">
+                        <div class="gran-result-card gran-result-highlight">
+                            <h3 class="gran-panel-title">Denominazione AGI (1977)</h3>
+                            <div id="gran-agi-name" class="gran-big-result">—</div>
+                        </div>
+                        <div class="gran-result-card gran-result-highlight">
+                            <h3 class="gran-panel-title">Classificazione USCS</h3>
+                            <div id="gran-uscs" class="gran-big-result">—</div>
+                            <div id="gran-uscs-desc" class="gran-small-note"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Modulo 1: Tensioni -->
+        <section class="module-card" data-tab-panel="tensioni" hidden>
+            <header class="module-header">
+                <h2>Tensioni e Deformazione nelle Terre</h2>
+                <p>Simula lo stato tensionale in un deposito di terreno a 2 strati</p>
+            </header>
+            
+            <div class="module-content">
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <label for="hw">Profondità Falda (m): <span id="val-hw">2.0</span></label>
+                        <input type="range" id="hw" min="0" max="10" step="0.1" value="2.0">
+                    </div>
+                    <div class="control-group">
+                        <label for="z1">Spessore Strato 1 (m): <span id="val-z1">4.0</span></label>
+                        <input type="range" id="z1" min="1" max="10" step="0.5" value="4.0">
+                    </div>
+                    <div class="control-group">
+                        <label for="gamma1">Peso di volume Strato 1 - γ (kN/m³): <span id="val-gamma1">16.0</span></label>
+                        <input type="range" id="gamma1" min="12" max="22" step="0.5" value="16.0">
+                    </div>
+                    <div class="control-group">
+                        <label for="gamma1-sat">Peso di volume saturo Strato 1 - γ<sub>sat</sub> (kN/m³): <span id="val-gamma1-sat">18.5</span></label>
+                        <input type="range" id="gamma1-sat" min="14" max="24" step="0.5" value="18.5">
+                    </div>
+                    <div class="control-group">
+                        <label for="gamma2-sat">Peso di volume saturo Strato 2 - γ<sub>sat</sub> (kN/m³): <span id="val-gamma2-sat">19.0</span></label>
+                        <input type="range" id="gamma2-sat" min="14" max="24" step="0.5" value="19.0">
+                    </div>
+                </div>
+                <div class="visualization-panel">
+                    <div class="soil-log-container">
+                        <div id="soil-log" class="soil-log"></div>
+                        <div id="water-table-line" class="water-table-line"></div>
+                    </div>
+                    <div class="chart-panel">
+                        <canvas id="stressChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modulo 3: Cedimenti delle Fondazioni -->
+        <section class="module-card" data-tab-panel="differenziale" hidden>
+            <header class="module-header">
+                <h2>Cedimenti delle Fondazioni</h2>
+                <p>Incremento di tensione sotto una fondazione (abaco di Fadum) e confronto tra cedimenti puntuali — cedimento differenziale e distorsione angolare</p>
+            </header>
+
+            <div class="fond-subtabs" role="tablist" aria-label="Strumenti del modulo">
+                <button type="button" class="fond-subtab-btn active" data-fond-subtab="fadum" role="tab" aria-selected="true">Abaco di Fadum (I<sub>s</sub>)</button>
+                <button type="button" class="fond-subtab-btn" data-fond-subtab="cedimento-diff" role="tab" aria-selected="false">Cedimento Differenziale</button>
+            </div>
+
+            <!-- Sotto-modulo A: Abaco di Fadum — fattore di influenza Is per l'incremento
+                 di tensione verticale al centro di una fondazione rettangolare (metodo dei
+                 quattro rettangoli B/2 x L/2, soluzione di Newmark/Boussinesq) -->
+            <div class="module-content fond-subpanel fadum-content" data-fond-subpanel="fadum">
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <label for="fadum-b">Larghezza fondazione B (m): <span id="val-fadum-b">4.0</span></label>
+                        <input type="range" id="fadum-b" min="1" max="10" step="0.5" value="4.0">
+                    </div>
+                    <div class="control-group">
+                        <label for="fadum-l">Lunghezza fondazione L (m): <span id="val-fadum-l">8.0</span></label>
+                        <input type="range" id="fadum-l" min="1" max="15" step="0.5" value="8.0">
+                    </div>
+                    <div class="control-group">
+                        <label for="fadum-z">Profondità del punto Z (m): <span id="val-fadum-z">3.0</span></label>
+                        <input type="range" id="fadum-z" min="1" max="10" step="0.5" value="3.0">
+                    </div>
+                    <p class="gran-small-note">Punto significativo al centro della fondazione: si applica il metodo dei quattro rettangoli, ciascuno B/2 &times; L/2 con un vertice comune nel punto centrale.</p>
+                    <div class="sif-readout">
+                        <div class="sif-readout-row"><span>m = (B/2)/Z</span><span id="fadum-m">&mdash;</span></div>
+                        <div class="sif-readout-row"><span>n = (L/2)/Z</span><span id="fadum-n">&mdash;</span></div>
+                    </div>
+                    <div class="gran-result-card gran-result-highlight">
+                        <h3 class="gran-panel-title">Fattore di influenza I<sub>s</sub></h3>
+                        <div class="gran-big-result" id="fadum-is">&mdash;</div>
+                    </div>
+                </div>
+                <div class="chart-panel"><canvas id="fadumChart"></canvas></div>
+            </div>
+
+            <!-- Sotto-modulo B: Cedimento Differenziale (invariato, spostato qui dal
+                 precedente modulo standalone) -->
+            <div class="module-content fond-subpanel diff-content" data-fond-subpanel="cedimento-diff" hidden>
+
+                <!-- Punto A -->
+                <div class="diff-point">
+                    <div class="diff-point-label label-a">PUNTO A</div>
+                    <div class="controls-panel" style="align-self:auto;">
+                        <div class="control-group">
+                            <label for="a-dsigma">Sovraccarico Δσ<sub>v</sub> (kPa): <span id="val-a-dsigma">80</span></label>
+                            <input type="range" id="a-dsigma" min="10" max="200" step="5" value="80">
+                        </div>
+                        <div class="control-group">
+                            <label for="a-h">H<sub>o</sub> (m): <span id="val-a-h">6.0</span></label>
+                            <input type="range" id="a-h" min="1" max="20" step="0.5" value="6.0">
+                        </div>
+                        <div class="control-group">
+                            <label for="a-cc">c<sub>c</sub>: <span id="val-a-cc">0.35</span></label>
+                            <input type="range" id="a-cc" min="0.05" max="1.0" step="0.01" value="0.35">
+                        </div>
+                        <div class="control-group">
+                            <label for="a-e0">e<sub>o</sub>: <span id="val-a-e0">0.80</span></label>
+                            <input type="range" id="a-e0" min="0.4" max="2.0" step="0.05" value="0.80">
+                        </div>
+                        <div class="control-group">
+                            <label for="a-sigma0">σ'<sub>vo</sub> (kPa): <span id="val-a-sigma0">50</span></label>
+                            <input type="range" id="a-sigma0" min="10" max="200" step="5" value="50">
+                        </div>
+                    </div>
+                    <div class="diff-result-badge badge-a">
+                        <span class="badge-label">ΔH<sub>A</sub></span>
+                        <span class="badge-value" id="res-a">—</span>
+                        <span class="badge-unit">cm</span>
+                    </div>
+                </div>
+
+                <!-- Punto B -->
+                <div class="diff-point">
+                    <div class="diff-point-label label-b">PUNTO B</div>
+                    <div class="controls-panel" style="align-self:auto;">
+                        <div class="control-group">
+                            <label for="b-dsigma">Sovraccarico Δσ<sub>v</sub> (kPa): <span id="val-b-dsigma">40</span></label>
+                            <input type="range" id="b-dsigma" min="10" max="200" step="5" value="40">
+                        </div>
+                        <div class="control-group">
+                            <label for="b-h">H<sub>o</sub> (m): <span id="val-b-h">4.0</span></label>
+                            <input type="range" id="b-h" min="1" max="20" step="0.5" value="4.0">
+                        </div>
+                        <div class="control-group">
+                            <label for="b-cc">c<sub>c</sub>: <span id="val-b-cc">0.25</span></label>
+                            <input type="range" id="b-cc" min="0.05" max="1.0" step="0.01" value="0.25">
+                        </div>
+                        <div class="control-group">
+                            <label for="b-e0">e<sub>o</sub>: <span id="val-b-e0">0.75</span></label>
+                            <input type="range" id="b-e0" min="0.4" max="2.0" step="0.05" value="0.75">
+                        </div>
+                        <div class="control-group">
+                            <label for="b-sigma0">σ'<sub>vo</sub> (kPa): <span id="val-b-sigma0">60</span></label>
+                            <input type="range" id="b-sigma0" min="10" max="200" step="5" value="60">
+                        </div>
+                    </div>
+                    <div class="diff-result-badge badge-b">
+                        <span class="badge-label">ΔH<sub>B</sub></span>
+                        <span class="badge-value" id="res-b">—</span>
+                        <span class="badge-unit">cm</span>
+                    </div>
+                </div>
+
+                <!-- Risultati e visualizzazione -->
+                <div class="diff-visual-col">
+                    <div class="control-group" style="margin-bottom:1rem;">
+                        <label for="dist-ab">Distanza A–B (m): <span id="val-dist-ab">10</span></label>
+                        <input type="range" id="dist-ab" min="1" max="50" step="1" value="10">
+                    </div>
+                    <canvas id="diffCanvas" width="460" height="340"></canvas>
+                    <div class="diff-results-row">
+                        <div class="diff-kpi">
+                            <span class="kpi-label">Cedimento differenziale</span>
+                            <span class="kpi-value" id="res-diff">—</span>
+                            <span class="kpi-unit">cm</span>
+                        </div>
+                        <div class="diff-kpi">
+                            <span class="kpi-label">Distorsione angolare (δ/L)</span>
+                            <span class="kpi-value" id="res-angular">—</span>
+                            <span class="kpi-unit">× 10⁻³</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Modulo 5: L'acqua nel Terreno (gradiente idraulico critico e sifonamento) -->
+        <section class="module-card" data-tab-panel="sifonamento" hidden>
+            <header class="module-header">
+                <h2>L'acqua nel Terreno</h2>
+                <p>Filtrazione verticale in una colonna di terreno saturo: come la direzione del flusso fa aumentare o annullare la tensione efficace</p>
+            </header>
+
+            <div class="module-content">
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <label>Direzione del flusso</label>
+                        <div class="flow-toggle" role="group" aria-label="Direzione del flusso">
+                            <button type="button" class="flow-btn" id="flow-down" data-dir="down">⬇ Verso il basso</button>
+                            <button type="button" class="flow-btn" id="flow-up" data-dir="up">⬆ Verso l'alto</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label for="sif-L">Lunghezza campione L (m): <span id="val-sif-L">2.0</span></label>
+                        <input type="range" id="sif-L" min="0.5" max="5" step="0.1" value="2.0">
+                    </div>
+                    <div class="control-group">
+                        <label for="sif-dh">Dislivello imposto Δh (m): <span id="val-sif-dh">0.5</span></label>
+                        <input type="range" id="sif-dh" min="0" max="5" step="0.1" value="0.5">
+                    </div>
+                    <div class="control-group">
+                        <label for="sif-gammasat">Peso di volume saturo γ<sub>sat</sub> (kN/m³): <span id="val-sif-gammasat">19.0</span></label>
+                        <input type="range" id="sif-gammasat" min="16" max="22" step="0.5" value="19.0">
+                    </div>
+
+                    <div class="sif-readout">
+                        <div class="sif-readout-row"><span>Gradiente applicato i = Δh / L</span><span id="sif-i">—</span></div>
+                        <div class="sif-readout-row"><span>Gradiente critico i<sub>c</sub> = γ' / γ<sub>w</sub></span><span id="sif-ic">—</span></div>
+                        <div class="sif-readout-row"><span>Tensione efficace alla base σ'(L)</span><span id="sif-sigmaL">—</span></div>
+                    </div>
+
+                    <div class="sif-gauge">
+                        <div class="sif-gauge-track">
+                            <div id="sif-gauge-fill" class="sif-gauge-fill"></div>
+                            <div id="sif-gauge-marker" class="sif-gauge-marker" title="Gradiente critico ic"></div>
+                        </div>
+                        <div class="sif-gauge-labels"><span>i = 0</span><span id="sif-gauge-ic-label">i = i<sub>c</sub></span></div>
+                    </div>
+
+                    <div id="sif-status" class="sif-status">—</div>
+                </div>
+
+                <div class="visualization-panel">
+                    <div class="sif-column-wrap" id="sif-column-wrap">
+                        <div class="sif-tank" id="sif-tank">
+                            <div class="sif-tank-water"></div>
+                            <span class="sif-tank-label">Serbatoio</span>
+                        </div>
+                        <div class="sif-pipe" id="sif-pipe"></div>
+                        <div class="soil-log-container sif-column" id="sif-column">
+                            <div id="sif-soil-log" class="soil-log"></div>
+                            <div id="sif-flow-arrows" class="sif-flow-arrows">
+                                <span class="sif-arrow">▲</span>
+                                <span class="sif-arrow">▲</span>
+                                <span class="sif-arrow">▲</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-panel">
+                        <canvas id="sifChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modulo 6: Compressione Edometrica -->
+        <section class="module-card" data-tab-panel="edometrica" hidden>
+            <header class="module-header">
+                <h2>Compressione Edometrica</h2>
+                <p>Cedimento di consolidazione, pressione di preconsolidazione (metodo di Casagrande) e coefficiente di consolidazione c<sub>v</sub> con i metodi di Casagrande e di Taylor</p>
+            </header>
+
+            <div class="edo-subtabs" role="tablist" aria-label="Strumenti del modulo">
+                <button type="button" class="edo-subtab-btn" data-subtab="cedimento" role="tab" aria-selected="false">Cedimento di Consolidazione</button>
+                <button type="button" class="edo-subtab-btn active" data-subtab="sigmap" role="tab" aria-selected="true">σ'<sub>p</sub> — Metodo di Casagrande</button>
+                <button type="button" class="edo-subtab-btn" data-subtab="cv-casagrande" role="tab" aria-selected="false">c<sub>v</sub> — Metodo di Casagrande (log t)</button>
+                <button type="button" class="edo-subtab-btn" data-subtab="cv-taylor" role="tab" aria-selected="false">c<sub>v</sub> — Metodo di Taylor (√t)</button>
+            </div>
+
+            <!-- Sotto-modulo (spostato qui dal precedente modulo standalone "Cedimenti"):
+                 teoria monodimensionale di Terzaghi per uno strato argilloso normalmente
+                 consolidato -->
+            <div class="module-content edo-subpanel" data-edo-subpanel="cedimento" hidden>
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <label for="delta-sigma">Sovraccarico Δσ<sub>v</sub> (kPa): <span id="val-delta-sigma">50</span></label>
+                        <input type="range" id="delta-sigma" min="10" max="200" step="5" value="50">
+                    </div>
+                    <div class="control-group">
+                        <label for="h-clay">Spessore Strato Argilloso H<sub>o</sub> (m): <span id="val-h-clay">5.0</span></label>
+                        <input type="range" id="h-clay" min="1" max="20" step="0.5" value="5.0">
+                    </div>
+                    <div class="control-group">
+                        <label for="cc">Indice di Compressione c<sub>c</sub>: <span id="val-cc">0.30</span></label>
+                        <input type="range" id="cc" min="0.05" max="1.0" step="0.01" value="0.30">
+                    </div>
+                    <div class="control-group">
+                        <label for="e0">Indice dei Vuoti Iniziale e<sub>o</sub>: <span id="val-e0">0.80</span></label>
+                        <input type="range" id="e0" min="0.4" max="2.0" step="0.05" value="0.80">
+                    </div>
+                    <div class="control-group">
+                        <label for="sigma0">Tensione Efficace Iniziale σ'<sub>vo</sub> (kPa): <span id="val-sigma0">40</span></label>
+                        <input type="range" id="sigma0" min="10" max="200" step="5" value="40">
+                    </div>
+                </div>
+
+                <div class="result-panel settlement-result-panel">
+                    <div class="settlement-log-wrap">
+                        <div id="settlement-delta-label" class="settlement-delta-label">&Delta;H = &mdash; cm</div>
+                        <div class="soil-log-container settlement-log-container">
+                            <div id="settlement-soil-log" class="soil-log"></div>
+                        </div>
+                    </div>
+                    <div class="result-display">
+                        <h3>Cedimento Atteso (ΔH)</h3>
+                        <div class="result-value">
+                            <span id="settlement-result">0.00</span>
+                            <span class="unit">cm</span>
+                        </div>
+                        <div class="formula">
+                            $$ \Delta H = \frac{H_o}{1 + e_o} \left( c_c \log \frac{\sigma'_{vo} + \Delta\sigma_v}{\sigma'_{vo}} \right) $$
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sotto-modulo A: Pressione di preconsolidazione, metodo di Casagrande -->
+            <div class="module-content edo-subpanel sp-content" data-edo-subpanel="sigmap">
+                <div class="sp-top-row">
+                    <div class="controls-panel sp-data-panel">
+                        <h3 class="gran-panel-title">Dati della prova (&sigma;', e)</h3>
+                        <div class="gran-table-wrap">
+                            <table class="gran-table">
+                                <thead><tr><th>&sigma;' (kPa)</th><th>e</th><th></th></tr></thead>
+                                <tbody id="sp-table-body"></tbody>
+                            </table>
+                        </div>
+                        <button type="button" id="sp-add-row" class="gran-btn">+ Aggiungi punto</button>
+                    </div>
+
+                    <div class="controls-panel sp-construction-panel">
+                        <p class="gran-small-note">Clicca sul grafico per posizionare il punto A, poi segui i passi.</p>
+                        <div id="sp-hint" class="sif-status sif-status-neutral">&mdash;</div>
+                        <div class="sp-step-buttons">
+                            <button type="button" id="sp-btn-suggest" class="flow-btn" title="Individua automaticamente il punto di massima curvatura della curva">Suggerisci A</button>
+                            <button type="button" id="sp-btn-horiz" class="gran-btn" disabled title="Traccia l'orizzontale passante per il punto A">1. Orizzontale</button>
+                            <button type="button" id="sp-btn-tan" class="gran-btn" disabled title="Traccia la tangente alla curva nel punto A">2. Tangente</button>
+                            <button type="button" id="sp-btn-bis" class="gran-btn" disabled title="Traccia la bisettrice dell'angolo fra orizzontale e tangente">3. Bisettrice</button>
+                            <button type="button" id="sp-btn-virgin" class="gran-btn" disabled title="Prolunga all'indietro il tratto rettilineo finale della curva (retta di compressione vergine), fino a incontrare la bisettrice">4. Retta vergine</button>
+                            <button type="button" id="sp-btn-d" class="gran-btn" disabled title="Trova il punto D, intersezione fra bisettrice e retta vergine: la sua ascissa è la stima di sigma'p">5. Punto D (&sigma;'<sub>p</sub>)</button>
+                            <button type="button" id="sp-btn-reset" class="flow-btn" disabled title="Cancella la costruzione e riparti dal punto A">Reset</button>
+                        </div>
+                        <div class="sif-readout">
+                            <div class="sif-readout-row"><span>e in A</span><span id="sp-eA">&mdash;</span></div>
+                            <div class="sif-readout-row"><span>Pendenza tangente in A (de/dlog&sigma;')</span><span id="sp-slope">&mdash;</span></div>
+                        </div>
+                        <div class="gran-result-card gran-result-highlight">
+                            <h3 class="gran-panel-title">&sigma;'<sub>p</sub> stimata (costruzione)</h3>
+                            <div class="gran-big-result" id="sp-est">&mdash; kPa</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel"><canvas id="sigmapChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Sotto-modulo B: cv, metodo di Casagrande (deformazione vs log t) -->
+            <div class="module-content edo-subpanel cvc-content" data-edo-subpanel="cv-casagrande" hidden>
+                <div class="cvc-top-row">
+                    <div class="controls-panel cvc-data-panel">
+                        <h3 class="gran-panel-title">Dati della prova (t, H)</h3>
+                        <div class="control-group">
+                            <label>Drenaggio</label>
+                            <div class="flow-toggle" role="group" aria-label="Condizione di drenaggio">
+                                <button type="button" class="flow-btn active" id="cvc-drain-double" data-drain="double">Doppio (d = H/2)</button>
+                                <button type="button" class="flow-btn" id="cvc-drain-single" data-drain="single">Singolo (d = H)</button>
+                            </div>
+                        </div>
+                        <div class="gran-table-wrap">
+                            <table class="gran-table">
+                                <thead><tr><th>t (min)</th><th>H (mm)</th><th></th></tr></thead>
+                                <tbody id="cvc-table-body"></tbody>
+                            </table>
+                        </div>
+                        <button type="button" id="cvc-add-row" class="gran-btn">+ Aggiungi punto</button>
+                    </div>
+
+                    <div class="controls-panel cvc-construction-panel">
+                        <p class="gran-small-note">Clicca sul grafico per posizionare il punto c, poi segui i passi.</p>
+                        <div id="cvc-hint" class="sif-status sif-status-neutral">&mdash;</div>
+                        <div class="sp-step-buttons">
+                            <button type="button" id="cvc-btn-suggest" class="flow-btn" title="Individua automaticamente un punto c adatto sul tratto iniziale della curva">Suggerisci c</button>
+                            <button type="button" id="cvc-btn-d0" class="gran-btn" disabled title="Costruisce d0 dai punti c (t1) e d (t1/4): d0 = 2&middot;H(t1/4) &minus; H(t1)">1. Costr. d<sub>0</sub></button>
+                            <button type="button" id="cvc-btn-tanmid" class="gran-btn" disabled title="Traccia la tangente al tratto centrale (più ripido) della curva">2. Tang. flesso</button>
+                            <button type="button" id="cvc-btn-tantail" class="gran-btn" disabled title="Traccia la tangente al tratto finale rettilineo della curva">3. Tang. finale</button>
+                            <button type="button" id="cvc-btn-d100" class="gran-btn" disabled title="Trova d100, intersezione fra le due tangenti">4. Trova d<sub>100</sub></button>
+                            <button type="button" id="cvc-btn-d50" class="gran-btn" disabled title="Trova d50 (media di d0 e d100), legge t50 sulla curva e calcola cv">5. t<sub>50</sub> e c<sub>v</sub></button>
+                            <button type="button" id="cvc-btn-reset" class="flow-btn" disabled title="Cancella la costruzione e riparti dal punto c">Reset</button>
+                        </div>
+                        <div class="sif-readout">
+                            <div class="sif-readout-row"><span>Perc. drenaggio d</span><span id="cvc-d">&mdash;</span></div>
+                            <div class="sif-readout-row"><span>d<sub>0</sub> (costruzione)</span><span id="cvc-y0">&mdash;</span></div>
+                            <div class="sif-readout-row"><span>d<sub>100</sub> (tangenti)</span><span id="cvc-y100">&mdash;</span></div>
+                            <div class="sif-readout-row"><span>d<sub>50</sub></span><span id="cvc-y50">&mdash;</span></div>
+                            <div class="sif-readout-row"><span>t<sub>50</sub></span><span id="cvc-t50">&mdash;</span></div>
+                        </div>
+                        <div class="gran-result-card gran-result-highlight">
+                            <h3 class="gran-panel-title">c<sub>v</sub> stimato (costruzione)</h3>
+                            <div class="gran-big-result" id="cvc-est">&mdash;</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel"><canvas id="cvCasagrandeChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Sotto-modulo C: cv, metodo di Taylor (deformazione vs sqrt t) -->
+            <div class="module-content edo-subpanel cvt-content" data-edo-subpanel="cv-taylor" hidden>
+                <div class="cvt-top-row">
+                    <div class="controls-panel cvt-data-panel">
+                        <h3 class="gran-panel-title">Dati della prova (t, deformazione)</h3>
+                        <div class="control-group">
+                            <label for="cvt-H">Spessore iniziale campione H (mm)</label>
+                            <input type="number" id="cvt-H" step="0.1" min="1" value="20">
+                        </div>
+                        <div class="control-group">
+                            <label>Drenaggio</label>
+                            <div class="flow-toggle" role="group" aria-label="Condizione di drenaggio">
+                                <button type="button" class="flow-btn active" id="cvt-drain-double" data-drain="double">Doppio (d = H/2)</button>
+                                <button type="button" class="flow-btn" id="cvt-drain-single" data-drain="single">Singolo (d = H)</button>
+                            </div>
+                        </div>
+                        <div class="gran-table-wrap">
+                            <table class="gran-table">
+                                <thead><tr><th>t (min)</th><th>Def. (mm)</th><th></th></tr></thead>
+                                <tbody id="cvt-table-body"></tbody>
+                            </table>
+                        </div>
+                        <button type="button" id="cvt-add-row" class="gran-btn">+ Aggiungi punto</button>
+                    </div>
+                    <div class="controls-panel cvt-construction-panel">
+                        <p class="gran-small-note">Clicca sul grafico per scegliere fino a dove arriva il tratto iniziale rettilineo, poi segui i passi.</p>
+                        <div id="cvt-hint" class="sif-status sif-status-neutral">&mdash;</div>
+                        <div class="sp-step-buttons">
+                            <button type="button" id="cvt-btn-suggest" class="flow-btn" title="Individua automaticamente dove finisce il tratto iniziale rettilineo">Suggerisci</button>
+                            <button type="button" id="cvt-btn-ab" class="gran-btn" disabled title="Interpola con una retta i punti del tratto iniziale scelto">1. Retta AB</button>
+                            <button type="button" id="cvt-btn-ac" class="gran-btn" disabled title="Retta dalla stessa origine, ascisse 1.15 volte quelle della retta AB">2. Retta AC</button>
+                            <button type="button" id="cvt-btn-d90" class="gran-btn" disabled title="Trova il punto C, intersezione fra la retta AC e la curva sperimentale: dà t90 e permette di calcolare cv">3. Trova C</button>
+                            <button type="button" id="cvt-btn-reset" class="flow-btn" disabled title="Cancella la costruzione e riparti dalla scelta del tratto iniziale">Reset</button>
+                        </div>
+                        <div class="sif-readout">
+                            <div class="sif-readout-row"><span>Perc. drenaggio d</span><span id="cvt-d">&mdash;</span></div>
+                            <div class="sif-readout-row"><span>D<sub>0</sub> (intercetta retta AB)</span><span id="cvt-c0">&mdash;</span></div>
+                            <div class="sif-readout-row"><span>Pendenza retta AB</span><span id="cvt-m0">&mdash;</span></div>
+                            <div class="sif-readout-row"><span>D<sub>90</sub></span><span id="cvt-d90">&mdash;</span></div>
+                            <div class="sif-readout-row"><span>D<sub>100</sub> (&Delta;H<sub>100</sub>=10/9&middot;&Delta;H<sub>90</sub>)</span><span id="cvt-d100">&mdash;</span></div>
+                            <div class="sif-readout-row"><span>t<sub>90</sub></span><span id="cvt-t90">&mdash;</span></div>
+                        </div>
+                        <div class="gran-result-card gran-result-highlight">
+                            <h3 class="gran-panel-title">c<sub>v</sub> stimato (costruzione)</h3>
+                            <div class="gran-big-result" id="cvt-est">&mdash;</div>
+                        </div>
+                    </div>
+                    <div class="chart-panel"><canvas id="cvTaylorChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modulo: Resistenza al Taglio -->
+        <section class="module-card" data-tab-panel="taglio" hidden>
+            <header class="module-header">
+                <h2>Resistenza al Taglio delle Terre</h2>
+                <p>Costruisci i cerchi di Mohr di una o più prove e confrontali con il criterio di rottura di Mohr-Coulomb-Terzaghi</p>
+            </header>
+
+            <div class="module-content">
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <label for="mohr-c">Coesione efficace c' (kPa): <span id="val-mohr-c">10</span></label>
+                        <input type="range" id="mohr-c" min="0" max="100" step="1" value="10">
+                    </div>
+                    <div class="control-group">
+                        <label for="mohr-phi">Angolo di attrito efficace φ' (°): <span id="val-mohr-phi">30</span></label>
+                        <input type="range" id="mohr-phi" min="0" max="45" step="0.5" value="30">
+                    </div>
+
+                    <div class="mohr-test" data-test="1">
+                        <div class="mohr-test-title">Prova 1</div>
+                        <div class="mohr-test-body">
+                            <div class="control-group">
+                                <label for="mohr-s3-1">σ'<sub>3</sub> (kPa): <span id="val-mohr-s3-1">100</span></label>
+                                <input type="range" id="mohr-s3-1" min="0" max="900" step="5" value="100">
+                            </div>
+                            <div class="control-group">
+                                <label for="mohr-s1-1">σ'<sub>1</sub> (kPa): <span id="val-mohr-s1-1">300</span></label>
+                                <input type="range" id="mohr-s1-1" min="0" max="900" step="5" value="300">
+                            </div>
+                            <div id="mohr-state-1" class="sif-status sif-status-neutral">—</div>
+                        </div>
+                    </div>
+
+                    <div class="mohr-test" data-test="2">
+                        <label class="gran-checkbox mohr-test-toggle">
+                            <input type="checkbox" id="mohr-enable-2"> Aggiungi Prova 2
+                        </label>
+                        <div class="mohr-test-body" id="mohr-body-2" hidden>
+                            <div class="control-group">
+                                <label for="mohr-s3-2">σ'<sub>3</sub> (kPa): <span id="val-mohr-s3-2">250</span></label>
+                                <input type="range" id="mohr-s3-2" min="0" max="900" step="5" value="250">
+                            </div>
+                            <div class="control-group">
+                                <label for="mohr-s1-2">σ'<sub>1</sub> (kPa): <span id="val-mohr-s1-2">500</span></label>
+                                <input type="range" id="mohr-s1-2" min="0" max="900" step="5" value="500">
+                            </div>
+                            <div id="mohr-state-2" class="sif-status sif-status-neutral">—</div>
+                        </div>
+                    </div>
+
+                    <div class="mohr-test" data-test="3">
+                        <label class="gran-checkbox mohr-test-toggle">
+                            <input type="checkbox" id="mohr-enable-3"> Aggiungi Prova 3
+                        </label>
+                        <div class="mohr-test-body" id="mohr-body-3" hidden>
+                            <div class="control-group">
+                                <label for="mohr-s3-3">σ'<sub>3</sub> (kPa): <span id="val-mohr-s3-3">400</span></label>
+                                <input type="range" id="mohr-s3-3" min="0" max="900" step="5" value="400">
+                            </div>
+                            <div class="control-group">
+                                <label for="mohr-s1-3">σ'<sub>1</sub> (kPa): <span id="val-mohr-s1-3">650</span></label>
+                                <input type="range" id="mohr-s1-3" min="0" max="900" step="5" value="650">
+                            </div>
+                            <div id="mohr-state-3" class="sif-status sif-status-neutral">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="visualization-panel mohr-viz-panel">
+                    <div class="chart-panel">
+                        <canvas id="mohrChart"></canvas>
+                    </div>
+                    <div class="mohr-plane-info">
+                        Piano di rottura teorico a <strong><span id="mohr-plane-angle">60.0</span>°</strong> dal piano su cui agisce σ'<sub>3</sub> (45° + φ'/2)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

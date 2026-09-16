@@ -1,0 +1,1835 @@
+:root {
+    --bg-color: #f4f6f9;
+    --card-bg: #ffffff;
+    --text-main: #1a202c;
+    --text-muted: #718096;
+    --accent: #1E507F;
+    --accent-hover: #173f63;
+    --sigma-total: #e53e3e;
+    --sigma-eff: #38a169;
+    --pore-pressure: #1E507F;
+    --accent-tint-bg: #e8eef4;
+    --accent-tint-border: #c2d2e0;
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.6;
+    padding-bottom: 3rem;
+}
+
+.app-header {
+    background: var(--accent);
+    padding: 0.9rem 2rem;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+}
+
+.institution-banner {
+    display: block;
+    width: 100%;
+    max-width: 240px;
+    height: auto;
+}
+
+.app-title-group {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.app-title {
+    color: #ffffff;
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.app-title-sub {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* 6 moduli, sempre su due righe da tre (una sola colonna sotto i 700px,
+   dove tre affiancati sarebbero troppo stretti per il testo). */
+.tabs {
+    max-width: 1500px;
+    margin: 0 auto 2rem;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+@media (min-width: 700px) {
+    .tabs {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.tab-btn {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 0.65rem 1.35rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.tab-btn:hover {
+    color: var(--text-main);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.tab-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+}
+
+.module-card[hidden] {
+    display: none;
+}
+
+.tabs-empty-state {
+    text-align: center;
+    color: var(--text-muted);
+    background: var(--card-bg);
+    border: 1px dashed var(--border-color);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    font-size: 0.95rem;
+}
+
+.tabs-empty-state[hidden] {
+    display: none;
+}
+
+.dashboard {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.module-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.module-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.module-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(to right, #ffffff, #f8fafc);
+}
+
+.module-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.module-header p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.module-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+@media(min-width: 900px) {
+    .module-content {
+        grid-template-columns: 400px 1fr;
+    }
+}
+
+.controls-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    align-self: start;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.control-group label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+}
+
+.control-group span {
+    font-weight: 700;
+    color: var(--accent);
+    margin-left: auto;
+    padding-left: 0.75rem;
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+    background: var(--accent-hover);
+    transform: scale(1.1);
+}
+
+.visualization-panel {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.soil-log-container {
+    width: 80px;
+    flex-shrink: 0;
+    position: relative;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background: #e2e8f0;
+    overflow: hidden;
+}
+
+.soil-log {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.soil-layer {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    border-bottom: 2px dashed rgba(255,255,255,0.3);
+    transition: height 0.1s linear, top 0.1s linear;
+}
+
+.layer-1 { background-color: #d69e2e; }
+.layer-2 { background-color: #975a16; }
+
+.water-table-line {
+    position: absolute;
+    left: -10px;
+    right: -10px;
+    height: 3px;
+    background-color: var(--accent);
+    z-index: 10;
+    box-shadow: 0 0 5px var(--accent);
+    transition: top 0.1s linear;
+}
+.water-table-line::after {
+    /* Centrato orizzontalmente e appena sopra la linea: il contenitore del log ha
+       overflow:hidden (serve per gli angoli arrotondati degli strati), quindi il
+       triangolo deve restare dentro i suoi bordi per non essere tagliato via. */
+    content: '▼';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -8px;
+    color: var(--accent);
+    font-size: 12px;
+    line-height: 1;
+}
+
+.chart-panel {
+    position: relative;
+    flex: 1;
+    height: 400px;
+}
+
+/* Result panel specific */
+.result-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.result-display {
+    text-align: center;
+    background: #f8fafc;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    width: 100%;
+}
+
+.result-display h3 {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.result-value {
+    margin: 1rem 0;
+    color: var(--accent);
+}
+
+#settlement-result {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.unit {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.formula {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-family: monospace;
+    background: #edf2f7;
+    padding: 0.5rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+}
+
+.settlement-visual {
+    width: 200px;
+    height: 200px;
+    position: relative;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    background: repeating-linear-gradient(
+      45deg,
+      #edf2f7,
+      #edf2f7 10px,
+      #e2e8f0 10px,
+      #e2e8f0 20px
+    );
+}
+
+.surface {
+    height: 10px;
+    background: #48bb78;
+    width: 100%;
+}
+
+.soil-block {
+    height: calc(100% - 10px);
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.soil-content {
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Cedimento di Consolidazione: schema più grande, con il blocco di sabbia in
+   superficie che "scende" visibilmente nello spazio lasciato libero dal cedimento */
+.settlement-result-panel {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+}
+
+.settlement-result-panel .soil-log-container {
+    flex-shrink: 0;
+}
+
+.settlement-result-panel .result-display {
+    width: auto;
+    flex: 1 1 320px;
+    max-width: 420px;
+}
+
+.settlement-log-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+/* Etichetta ΔH: volutamente fuori dal contenitore degli strati, cosi' non puo' mai
+   finire sovrapposta alla scritta "Sabbia" (o "Argilla"), qualunque sia lo spessore
+   dei livelli disegnati per la combinazione di parametri scelta. */
+.settlement-delta-label {
+    background: #ffffff;
+    border: 1.5px solid #e53e3e;
+    color: #c53030;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.25rem 0.7rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    box-shadow: var(--shadow-sm);
+}
+
+.settlement-log-container {
+    width: 200px;
+    height: 460px;
+}
+
+.settlement-log-container .soil-layer {
+    font-size: 0.9rem;
+}
+
+.settlement-gap {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    transition: height 0.1s linear;
+    /* Deve restare visibile sopra il blocco di sabbia superiore anche quando lo
+       scarto e' cosi' piccolo da essere quasi interamente coperto da esso. */
+    z-index: 5;
+}
+
+.settlement-original-line {
+    position: absolute;
+    top: 0;
+    left: -2px;
+    right: -2px;
+    border-top: 2px dashed #4a5568;
+}
+
+.settlement-original-line::after {
+    content: 'Piano campagna iniziale';
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: #4a5568;
+    background: rgba(255, 255, 255, 0.75);
+    padding: 0 3px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+.settlement-gap-line {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    border-left: 2px dashed #e53e3e;
+    transform: translateX(-50%);
+}
+
+
+/* Differential Settlement Module */
+.diff-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 480px;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+@media (max-width: 1250px) {
+    .diff-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+.diff-point {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+}
+
+.diff-point-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    display: inline-block;
+    align-self: flex-start;
+}
+
+.label-a {
+    background: var(--accent-tint-bg);
+    color: var(--accent);
+    border: 1px solid var(--accent-tint-border);
+}
+
+.label-b {
+    background: #feefc3;
+    color: #b7791f;
+    border: 1px solid #fbd38d;
+}
+
+.diff-result-badge {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.badge-a {
+    background: var(--accent-tint-bg);
+    border: 1px solid var(--accent-tint-border);
+}
+
+.badge-b {
+    background: #feefc3;
+    border: 1px solid #fbd38d;
+}
+
+.badge-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.badge-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.badge-unit {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.diff-visual-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    gap: 1rem;
+}
+
+#diffCanvas {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 460px;
+    height: 340px;
+}
+
+.diff-results-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.diff-kpi {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.kpi-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.kpi-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.kpi-unit {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Granulometria e Classificazione Module */
+.gran-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.gran-main-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.gran-chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.gran-d-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.gran-d-btn {
+    --d-color: #718096;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--d-color);
+    background: #ffffff;
+    color: var(--d-color);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.gran-d-btn:hover {
+    background: color-mix(in srgb, var(--d-color) 12%, #ffffff);
+}
+
+.gran-d-btn.active {
+    background: var(--d-color);
+    color: #ffffff;
+}
+
+.gran-d-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: 1.6rem;
+    align-items: center;
+}
+
+.gran-d-chip {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--d-color, var(--text-main));
+    background: color-mix(in srgb, var(--d-color, #718096) 10%, #ffffff);
+    border: 1px solid var(--d-color, var(--border-color));
+    border-radius: 8px;
+    padding: 0.3rem 0.6rem;
+}
+
+.gran-d-chip em {
+    font-style: normal;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.gran-top-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+@media (min-width: 1000px) {
+    .gran-top-row {
+        flex-direction: row;
+    }
+    .gran-top-row .gran-input-panel {
+        flex: 0 0 340px;
+    }
+    .gran-top-row .gran-main-chart {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+.gran-panel-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+.gran-panel-title-spaced {
+    margin-top: 0.5rem;
+}
+
+.gran-input-panel {
+    gap: 1rem;
+}
+
+.gran-atterberg-panel {
+    gap: 1rem;
+}
+
+.gran-atterberg-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: stretch;
+}
+
+.gran-atterberg-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    flex: 0 1 190px;
+}
+
+.gran-atterberg-field label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.gran-atterberg-field input[type="number"] {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 0.65rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--accent-hover);
+}
+
+.gran-atterberg-checkbox {
+    flex: 1 1 260px;
+    align-self: center;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+}
+
+.gran-group-divider td {
+    background: #edf2f7;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.4rem 0.5rem;
+}
+
+.gran-table-wrap {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.gran-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.gran-table th {
+    position: sticky;
+    top: 0;
+    background: #edf2f7;
+    padding: 0.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.gran-table td {
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.gran-table input[type="number"] {
+    width: 100%;
+    padding: 0.3rem 0.4rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+}
+
+/* Tabella dati della prova (sigma'p): la colonna "elimina riga" ha larghezza
+   fissa e minima, cosi' i due campi numerici (sigma' ed e) si dividono tutto
+   lo spazio restante e il valore di e (3 decimali) non viene tagliato quando
+   la colonna e' stretta. */
+.sp-data-panel .gran-table th:nth-child(3),
+.sp-data-panel .gran-table td:nth-child(3) {
+    width: 22px;
+}
+
+.sp-data-panel .gran-table td:nth-child(1),
+.sp-data-panel .gran-table td:nth-child(2) {
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+}
+
+.sp-data-panel .gran-table input[type="number"] {
+    padding: 0.3rem 0.25rem;
+    font-size: 0.8rem;
+}
+
+.gran-remove-row {
+    background: none;
+    border: none;
+    color: #e53e3e;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0 0.35rem;
+    line-height: 1;
+}
+
+.gran-remove-row:hover {
+    color: #c53030;
+}
+
+.gran-btn {
+    align-self: flex-start;
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.gran-btn:hover {
+    background: var(--accent-hover);
+}
+
+.gran-btn:disabled,
+.gran-btn:disabled:hover {
+    background: #cbd5e0;
+    color: #ffffff;
+    cursor: not-allowed;
+}
+
+.flow-btn:disabled,
+.flow-btn:disabled:hover {
+    background: #ffffff;
+    border-color: var(--border-color);
+    color: #cbd5e0;
+    cursor: not-allowed;
+}
+
+/* Pulsanti della costruzione di Casagrande (retta vergine, tangente, bisettrice, ecc.):
+   riga flessibile con gli stessi criteri dei pulsanti D10/D30/D60. */
+.sp-step-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.sp-step-buttons .gran-btn,
+.sp-step-buttons .flow-btn {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.78rem;
+    text-align: center;
+}
+
+/* Modulo sigma'p: tabella dati, pulsanti di costruzione e grafico affiancati
+   sulla stessa riga, cosi' restano visibili tutti insieme senza dover scorrere
+   la pagina per passare dall'uno all'altro. */
+.sp-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sp-top-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+/* Sotto i 1100px .sp-top-row e' in colonna (asse principale verticale):
+   l'altezza esplicita del grafico andrebbe in conflitto con il "flex:1"
+   ereditato da .chart-panel (flex-basis:0 sull'asse principale, che qui e'
+   l'altezza), schiacciandolo a pochi pixel. "flex:none" ripristina
+   l'altezza dichiarata. Questa regola deve stare PRIMA del media query qui
+   sotto: le due regole hanno la stessa specificita', quindi a parita' di
+   specificita' vince l'ordine nel file — mettendo il media query dopo, a
+   1100px+ e' "flex:1" (che riempie la riga in orizzontale, dove l'asse
+   principale e' la larghezza) a vincere sull'unconditional "flex:none". */
+.sp-top-row .chart-panel {
+    height: 600px;
+    flex: none;
+}
+
+@media (max-width: 600px) {
+    .sp-top-row .chart-panel {
+        height: 420px;
+    }
+}
+
+@media (min-width: 1100px) {
+    .sp-top-row {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+    .sp-top-row .sp-data-panel {
+        flex: 0 0 250px;
+    }
+    .sp-top-row .sp-construction-panel {
+        flex: 0 0 280px;
+    }
+    .sp-top-row .chart-panel {
+        flex: 1;
+        min-width: 360px;
+    }
+}
+
+.sp-data-panel,
+.sp-construction-panel {
+    gap: 1rem;
+}
+
+/* Modulo cv (Casagrande, log t): stesso layout a tre colonne del modulo
+   sigma'p (tabella dati | pannello di costruzione | grafico), con classi
+   proprie per non accoppiare i due moduli fra loro. */
+.cvc-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.cvc-top-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+/* Vedi il commento analogo su .sp-top-row .chart-panel: "flex:none" evita che
+   il "flex:1" ereditato da .chart-panel schiacci l'altezza quando la riga e'
+   in colonna (sotto i 1100px). Anche qui la regola deve stare PRIMA del
+   media query sottostante, cosi' a 1100px+ vince "flex:1" (stessa
+   specificita', vince l'ordine nel file). */
+.cvc-top-row .chart-panel {
+    height: 600px;
+    flex: none;
+}
+
+@media (max-width: 600px) {
+    .cvc-top-row .chart-panel {
+        height: 420px;
+    }
+}
+
+@media (min-width: 1100px) {
+    .cvc-top-row {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+    .cvc-top-row .cvc-data-panel {
+        flex: 0 0 250px;
+    }
+    .cvc-top-row .cvc-construction-panel {
+        flex: 0 0 280px;
+    }
+    .cvc-top-row .chart-panel {
+        flex: 1;
+        min-width: 360px;
+    }
+}
+
+.cvc-data-panel,
+.cvc-construction-panel {
+    gap: 1rem;
+}
+
+.cvc-data-panel .gran-table th:nth-child(3),
+.cvc-data-panel .gran-table td:nth-child(3) {
+    width: 22px;
+}
+
+.cvc-data-panel .gran-table td:nth-child(1),
+.cvc-data-panel .gran-table td:nth-child(2) {
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+}
+
+.cvc-data-panel .gran-table input[type="number"] {
+    padding: 0.3rem 0.25rem;
+    font-size: 0.8rem;
+}
+
+/* La prova ha piu' letture (16 righe, dati reali di un gradino di carico)
+   di quante il modulo sigma'p ne mostri di norma: senza un limite la colonna
+   dati diventerebbe molto piu' alta del grafico. La tabella scorre al suo
+   interno restando comunque affiancata a costruzione e grafico. */
+.cvc-data-panel .gran-table-wrap {
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+@media (min-width: 1100px) {
+    /* Altezza fissa uguale per le due colonne di controllo (il valore
+       corrisponde all'altezza naturale del pannello di costruzione, il piu'
+       alto dei due): un'altezza esplicita, anziche' "align-items:stretch",
+       evita il problema circolare per cui la tabella (resa flessibile subito
+       sotto) farebbe salire anche l'altezza "naturale" usata per calcolare
+       lo stretch stesso. Con l'altezza fissata, la tabella puo' allungarsi
+       per riempire lo spazio in piu' invece di lasciare un vuoto sotto il
+       pulsante "+ Aggiungi punto". */
+    .cvc-top-row .cvc-data-panel,
+    .cvc-top-row .cvc-construction-panel {
+        height: 681px;
+    }
+    .cvc-data-panel .gran-table-wrap {
+        max-height: none;
+        flex: 1;
+        min-height: 0;
+    }
+}
+
+/* Modulo cv (Taylor, radice di t): stesso layout a tre colonne dei moduli
+   sigma'p e cv-Casagrande, con classi proprie per non accoppiare i moduli
+   fra loro. */
+.cvt-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.cvt-top-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+/* Vedi il commento analogo su .sp-top-row .chart-panel: "flex:none" evita che
+   il "flex:1" ereditato da .chart-panel schiacci l'altezza quando la riga e'
+   in colonna (sotto i 1100px). Anche qui la regola deve stare PRIMA del
+   media query sottostante, cosi' a 1100px+ vince "flex:1" (stessa
+   specificita', vince l'ordine nel file). */
+.cvt-top-row .chart-panel {
+    height: 600px;
+    flex: none;
+}
+
+@media (max-width: 600px) {
+    .cvt-top-row .chart-panel {
+        height: 420px;
+    }
+}
+
+@media (min-width: 1100px) {
+    .cvt-top-row {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+    .cvt-top-row .cvt-data-panel {
+        flex: 0 0 250px;
+    }
+    .cvt-top-row .cvt-construction-panel {
+        flex: 0 0 280px;
+    }
+    .cvt-top-row .chart-panel {
+        flex: 1;
+        min-width: 360px;
+    }
+}
+
+.cvt-data-panel,
+.cvt-construction-panel {
+    gap: 1rem;
+}
+
+.cvt-data-panel .gran-table th:nth-child(3),
+.cvt-data-panel .gran-table td:nth-child(3) {
+    width: 22px;
+}
+
+.cvt-data-panel .gran-table td:nth-child(1),
+.cvt-data-panel .gran-table td:nth-child(2) {
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+}
+
+.cvt-data-panel .gran-table input[type="number"] {
+    padding: 0.3rem 0.25rem;
+    font-size: 0.8rem;
+}
+
+.cvt-data-panel .gran-table-wrap {
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+@media (min-width: 1100px) {
+    /* Vedi il commento analogo su .cvc-top-row: altezza fissa uguale per le
+       due colonne di controllo, pari all'altezza naturale del pannello di
+       costruzione (il piu' alto dei due). */
+    .cvt-top-row .cvt-data-panel,
+    .cvt-top-row .cvt-construction-panel {
+        height: 760px;
+    }
+    .cvt-data-panel .gran-table-wrap {
+        max-height: none;
+        flex: 1;
+        min-height: 0;
+    }
+}
+
+.gran-input-panel input[type="number"] {
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    width: 100%;
+}
+
+.gran-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    cursor: pointer;
+}
+
+.gran-chart-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.gran-chart-panel {
+    height: 320px;
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 0.75rem;
+}
+
+/* La curva granulometrica resta l'elemento principale del modulo: più alta delle altre,
+   ma ora affiancata al box dei dati così da poterli tenere sott'occhio insieme */
+.gran-chart-main {
+    flex: none;
+    height: 620px;
+}
+
+@media (max-width: 600px) {
+    .gran-chart-main {
+        height: 420px;
+    }
+}
+
+/* Il box del Casagrande diventa una card come quelle dei risultati (stesso sfondo,
+   bordo, angoli e padding) così i due bordi partono dalla stessa altezza quando
+   sono affiancati: il pannello interno del grafico perde quindi il proprio bordo,
+   che sarebbe ridondante dentro la card. */
+.gran-chart-secondary-full {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.gran-chart-secondary-full .gran-chart-panel {
+    height: 460px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+}
+
+.gran-bottom-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+@media (min-width: 1000px) {
+    .gran-bottom-row {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+    .gran-bottom-row .gran-chart-secondary-full {
+        flex: 1 1 60%;
+        min-width: 480px;
+    }
+    .gran-bottom-row .gran-classification-panel {
+        flex: 1 1 300px;
+        min-width: 260px;
+    }
+}
+
+.gran-classification-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
+/* Riga con i limiti di Atterberg e le due card numeriche derivate dalla curva
+   (frazioni e coefficienti): stanno vicine perché sono tutti dati/risultati
+   "di lettura rapida", separati dalla parte di classificazione grafica sotto. */
+.gran-mid-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+.gran-mid-row .gran-atterberg-panel {
+    flex: 1 1 380px;
+}
+
+.gran-mid-row .gran-result-card {
+    flex: 1 1 240px;
+}
+
+.gran-result-card {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.gran-result-highlight {
+    background: var(--accent-tint-bg);
+    border-color: var(--accent-tint-border);
+}
+
+.gran-fraction-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 1.25rem;
+    font-size: 0.85rem;
+}
+
+.gran-fraction-grid div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.gran-fraction-grid .gran-fraction-label {
+    color: var(--text-muted);
+}
+
+.gran-fraction-grid .gran-fraction-value {
+    font-weight: 700;
+    color: var(--accent);
+    text-align: left;
+}
+
+.gran-fraction-unit {
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-left: 0.25rem;
+}
+
+.gran-big-result {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent-hover);
+    line-height: 1.25;
+}
+
+.gran-small-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Gradiente Critico e Sifonamento */
+.flow-toggle {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.flow-btn {
+    flex: 1;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--border-color);
+    background: #ffffff;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.flow-btn:hover {
+    border-color: var(--accent);
+    color: var(--text-main);
+}
+
+.flow-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+}
+
+.sif-readout {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+}
+
+.sif-readout-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+}
+
+.sif-readout-row span:first-child {
+    color: var(--text-muted);
+}
+
+.sif-readout-row span:last-child {
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+}
+
+.sif-gauge {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.sif-gauge-track {
+    position: relative;
+    height: 10px;
+    border-radius: 999px;
+    background: #e2e8f0;
+}
+
+.sif-gauge-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: var(--accent);
+    transition: width 0.15s ease, background 0.15s ease;
+}
+
+.sif-gauge-fill-ok { background: #38a169; }
+.sif-gauge-fill-critical { background: #e53e3e; }
+.sif-gauge-fill-neutral { background: #a0aec0; }
+
+.sif-gauge-marker {
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    width: 2px;
+    height: 18px;
+    background: #2d3748;
+    transform: translateX(-50%);
+}
+
+/* Modulo Resistenza al Taglio: un box per ciascuna prova, con un bordo colorato
+   che corrisponde al colore del suo cerchio di Mohr nel grafico, cosi' e'
+   immediato capire quale controllo governa quale curva. */
+.mohr-test {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid #1E507F;
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mohr-test[data-test="2"] { border-left-color: #38a169; }
+.mohr-test[data-test="3"] { border-left-color: #d69e2e; }
+
+.mohr-test-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.mohr-test-toggle {
+    font-weight: 600;
+}
+
+.mohr-test-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Il pannello di visualizzazione del modulo Taglio ha un solo figlio in più
+   (il box del piano di rottura) oltre al grafico: va impilato SOTTO di esso,
+   non affiancato come farebbe di default ".visualization-panel" (flex-row,
+   pensato per il log del terreno accanto al grafico negli altri moduli). */
+.mohr-viz-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+}
+
+/* "flex: none" invece di ereditare "flex: 1" da .chart-panel: in un
+   contenitore a colonna "flex:1" azzererebbe la sua altezza di base (flex-
+   basis 0) e la farebbe dipendere dallo spazio libero del contenitore, che
+   qui non ha un'altezza propria — il chart-panel deve invece mantenere una
+   sua altezza fissa. L'altezza (600px, 260px sotto i 600px) è scelta per
+   avvicinare il rapporto larghezza/altezza dell'area di disegno a 1:1: con
+   i 400px originali l'area era molto più larga che alta, e per mantenere i
+   cerchi di Mohr davvero circolari (non ellittici) lo script doveva
+   allargare di molto l'asse σ' oltre il necessario, lasciando bianca gran
+   parte destra del grafico a prescindere dalla dimensione dei cerchi. */
+.mohr-viz-panel .chart-panel {
+    flex: none;
+    width: 100%;
+    height: 600px;
+}
+
+@media (max-width: 600px) {
+    .mohr-viz-panel .chart-panel {
+        height: 260px;
+    }
+}
+
+.mohr-plane-info {
+    font-size: 0.85rem;
+    background: var(--accent-tint-bg);
+    border: 1px solid var(--accent-tint-border);
+    color: var(--accent-hover);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+}
+
+.mohr-plane-info strong {
+    color: var(--accent);
+}
+
+.sif-gauge-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.sif-status {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: #f8fafc;
+}
+
+.sif-status-ok {
+    background: #f0fff4;
+    border-color: #9ae6b4;
+    color: #22543d;
+}
+
+.sif-status-critical {
+    background: #fff5f5;
+    border-color: #fc8181;
+    color: #822727;
+    animation: sif-pulse 1.4s ease-in-out infinite;
+}
+
+.sif-status-neutral {
+    background: var(--accent-tint-bg);
+    border-color: var(--accent-tint-border);
+    color: var(--accent-hover);
+}
+
+@keyframes sif-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.35); }
+    50% { box-shadow: 0 0 0 6px rgba(229, 62, 62, 0); }
+}
+
+.sif-column-wrap {
+    position: relative;
+    width: 80px;
+    flex-shrink: 0;
+}
+
+/* Spazio riservato per il serbatoio, dal lato in cui si trova in base alla
+   direzione del flusso: evita che sporga sopra l'intestazione del modulo. Il
+   pannello controlli non deve seguire questo spazio riservato (resta fisso
+   vicino al titolo): la regola successiva lo riporta su con un margine
+   negativo pari allo spazio aggiunto, lasciando solo un piccolo distacco. */
+.module-content.sif-reserve-top {
+    padding-top: 7.5rem;
+}
+
+.module-content.sif-reserve-top .controls-panel {
+    margin-top: -6.5rem;
+}
+
+.module-content.sif-reserve-bottom {
+    padding-bottom: 7.5rem;
+}
+
+.sif-column {
+    position: relative;
+    transition: box-shadow 0.2s ease;
+}
+
+.sif-column.sif-column-critical {
+    box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.45);
+}
+
+/* Serbatoio: rappresenta da dove entra/esce l'acqua rispetto alla colonna.
+   Di default (flusso verso il basso) sta sopra il campione; quando il flusso
+   è verso l'alto si sposta sotto, a rappresentare la sorgente in pressione. */
+.sif-tank {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 22px);
+    width: 80px;
+    height: 52px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background: #dbe6f0;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.sif-tank-water {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 65%;
+    background: linear-gradient(180deg, #6fa8dc, #3f7bb8);
+}
+
+.sif-tank-water::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.sif-tank-label {
+    position: relative;
+    z-index: 1;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #1a365d;
+    margin-bottom: 4px;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+.sif-pipe {
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    width: 10px;
+    height: 22px;
+    transform: translateX(-50%);
+    background: #94a8bf;
+    border-left: 1px solid #7c93ad;
+    border-right: 1px solid #7c93ad;
+}
+
+.sif-column-wrap.flow-up .sif-tank {
+    bottom: auto;
+    top: calc(100% + 22px);
+}
+
+.sif-column-wrap.flow-up .sif-pipe {
+    bottom: auto;
+    top: 100%;
+}
+
+.sif-layer {
+    background-color: #4a7fac;
+}
+
+/* Le strisce animate su un div piccolo e stretto: animare "background-position"
+   su un repeating-linear-gradient (come si faceva prima) causa uno scatto ad
+   ogni ciclo, perché il browser deve ridisegnare da capo il gradiente e la
+   distanza di un giro non è mai perfettamente esatta. Il pattern robusto è
+   invece un layer più grande del box, animato con "transform: translate" (che
+   il browser anima come un semplice scorrimento continuo, senza ridisegnare
+   il gradiente): il ::before contiene le strisce, il testo sta nello span
+   sopra di esso. */
+.sif-layer-liquefied {
+    position: relative;
+    overflow: hidden;
+    background: #c53030;
+    text-align: center;
+    font-size: 0.62rem;
+    line-height: 1.15;
+    padding: 0 2px;
+}
+
+.sif-layer-liquefied::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: repeating-linear-gradient(135deg, #e53e3e, #e53e3e 10px, #c53030 10px, #c53030 20px);
+    animation: sif-boil 0.9s linear infinite;
+    will-change: transform;
+}
+
+.sif-liquefied-label {
+    position: relative;
+    z-index: 1;
+    word-break: break-word;
+}
+
+@keyframes sif-boil {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(28.2842712px, 0); }
+}
+
+.sif-flow-arrows {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.sif-arrow {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    opacity: 0;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.sif-flow-arrows.flow-up .sif-arrow {
+    animation: sif-flow-up 2.2s linear infinite;
+}
+
+.sif-flow-arrows.flow-down .sif-arrow {
+    animation: sif-flow-down 2.2s linear infinite;
+}
+
+.sif-arrow:nth-child(1) { animation-delay: 0s; }
+.sif-arrow:nth-child(2) { animation-delay: 0.7s; }
+.sif-arrow:nth-child(3) { animation-delay: 1.4s; }
+
+@keyframes sif-flow-up {
+    0% { top: 105%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: -10%; opacity: 0; }
+}
+
+@keyframes sif-flow-down {
+    0% { top: -10%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 105%; opacity: 0; }
+}
+
+/* Compressione Edometrica: sotto-schede interne al modulo */
+.edo-subtabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0 2rem;
+    margin-top: -0.5rem;
+}
+
+.edo-subtab-btn {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.edo-subtab-btn:hover {
+    border-color: var(--accent);
+    color: var(--text-main);
+}
+
+.edo-subtab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+}
+
+.edo-subpanel[hidden] {
+    display: none;
+}
+
+/* Cedimenti delle Fondazioni: sotto-schede interne al modulo (stessa idea
+   di .edo-subtabs, classi separate per non accoppiare i due moduli). */
+.fond-subtabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0 2rem;
+    margin-top: -0.5rem;
+}
+
+.fond-subtab-btn {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.fond-subtab-btn:hover {
+    border-color: var(--accent);
+    color: var(--text-main);
+}
+
+.fond-subtab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+}
+
+.fond-subpanel[hidden] {
+    display: none;
+}
+
+/* Abaco di Fadum: un po' piu' alto del default (400px), per lasciare respiro
+   alla famiglia di curve di riferimento oltre alla curva evidenziata. */
+.fadum-content .chart-panel {
+    height: 520px;
+}
+
+@media (max-width: 600px) {
+    .fadum-content .chart-panel {
+        height: 380px;
+    }
+}
+
