@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSeepageModule();
     initEdometricModule();
     initShearModule();
+    initMeccanicaModule();
 });
 
 // Impedisce che la rotellina del mouse cambi il valore di un campo numerico
@@ -288,9 +289,14 @@ function initStressModule() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: {
-                        onComplete: () => syncSoilLogToChart()
-                    },
+                    // Animazione disattivata (vedi lo stesso commento sul grafico dei
+                    // cerchi di Mohr, initShearModule/fixAspect): altrimenti quando il
+                    // tab (fino ad allora nascosto) diventa visibile e Chart.js
+                    // ridimensiona il canvas, il grafico si "muove" per qualche
+                    // istante. 'onResize' + requestAnimationFrame rimanda la sincronizzazione
+                    // del log stratigrafico al momento giusto, appena prima del prossimo repaint.
+                    animation: false,
+                    onResize: () => { requestAnimationFrame(() => syncSoilLogToChart()); },
                     scales: {
                         y: {
                             type: 'linear',
@@ -878,6 +884,10 @@ function initFadumTool() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                // Niente animazione: il grafico è creato mentre il tab è nascosto e
+                // altrimenti si "muoverebbe" quando Chart.js lo ridimensiona alla sua
+                // dimensione reale nel momento in cui il tab viene aperto.
+                animation: false,
                 scales: {
                     x: { type: 'logarithmic', min: X_MIN, max: X_MAX, title: { display: true, text: 'm (scala log)' } },
                     y: { type: 'linear', min: 0, max: Y_MAX, title: { display: true, text: 'Fattore di influenza Is' } }
@@ -969,7 +979,8 @@ function initGranulometriaModule() {
     const activeDValues = { 10: false, 30: false, 60: false };
 
     const tbody = document.getElementById('gran-table-body');
-    const addRowBtn = document.getElementById('gran-add-row');
+    const addSieveBtn = document.getElementById('gran-add-row-sieve');
+    const addSedBtn = document.getElementById('gran-add-row-sed');
     const wlInput = document.getElementById('gran-wl');
     const wpInput = document.getElementById('gran-wp');
     const organicInput = document.getElementById('gran-organic');
@@ -1209,12 +1220,22 @@ function initGranulometriaModule() {
         });
     }
 
-    addRowBtn.addEventListener('click', () => {
-        const inheritedGroup = granPoints.length ? granPoints[granPoints.length - 1].group : 'setacciatura';
-        granPoints.push({ d: 1, p: 50, group: inheritedGroup || 'setacciatura' });
+    // Un pulsante di aggiunta per ciascun gruppo (setacciatura / sedimentazione):
+    // il nuovo punto va in coda al proprio gruppo, non in fondo alla tabella,
+    // cosi' le righe dello stesso gruppo restano contigue sotto la loro
+    // intestazione. Se il gruppo e' vuoto, la setacciatura va in testa e la
+    // sedimentazione in coda (stesso ordine in cui compaiono di default).
+    function addGranPoint(group, point) {
+        let insertAt = -1;
+        granPoints.forEach((pt, i) => { if (pt.group === group) insertAt = i + 1; });
+        if (insertAt === -1) insertAt = group === 'setacciatura' ? 0 : granPoints.length;
+        granPoints.splice(insertAt, 0, Object.assign({ group }, point));
         renderGranTable();
         recompute();
-    });
+    }
+
+    addSieveBtn.addEventListener('click', () => addGranPoint('setacciatura', { d: 1, p: 50 }));
+    addSedBtn.addEventListener('click', () => addGranPoint('sedimentazione', { d: 0.01, p: '' }));
 
     [wlInput, wpInput, organicInput].forEach(el => {
         el.addEventListener('input', recompute);
@@ -1478,6 +1499,10 @@ function initGranulometriaModule() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                // Niente animazione: il grafico è creato mentre il tab è nascosto e
+                // altrimenti si "muoverebbe" quando Chart.js lo ridimensiona alla sua
+                // dimensione reale nel momento in cui il tab viene aperto.
+                animation: false,
                 scales: {
                     x: {
                         type: 'logarithmic',
@@ -1565,6 +1590,10 @@ function initGranulometriaModule() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                // Niente animazione: il grafico è creato mentre il tab è nascosto e
+                // altrimenti si "muoverebbe" quando Chart.js lo ridimensiona alla sua
+                // dimensione reale nel momento in cui il tab viene aperto.
+                animation: false,
                 scales: {
                     x: {
                         type: 'linear',
@@ -1799,7 +1828,14 @@ function initSeepageModule() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: { onComplete: () => syncColumnToChart() },
+                    // Animazione disattivata (vedi lo stesso commento sul grafico dei
+                    // cerchi di Mohr, initShearModule/fixAspect): altrimenti quando il
+                    // tab (fino ad allora nascosto) diventa visibile e Chart.js
+                    // ridimensiona il canvas, il grafico si "muove" per qualche
+                    // istante. 'onResize' + requestAnimationFrame rimanda la sincronizzazione
+                    // della colonna al momento giusto, appena prima del prossimo repaint.
+                    animation: false,
+                    onResize: () => { requestAnimationFrame(() => syncColumnToChart()); },
                     scales: {
                         y: {
                             type: 'linear',
@@ -2448,6 +2484,10 @@ function initEdometricModule() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    // Niente animazione: il grafico è creato mentre il tab è nascosto e
+                    // altrimenti si "muoverebbe" quando Chart.js lo ridimensiona alla sua
+                    // dimensione reale nel momento in cui il tab viene aperto.
+                    animation: false,
                     scales: {
                         x: { type: 'logarithmic', min: xLeftEdge, max: xRightEdge, title: { display: true, text: "σ' (kPa) — scala log" } },
                         // Il massimo dell'asse e resta fisso a 1 indipendentemente dai dati
@@ -3069,6 +3109,10 @@ function initEdometricModule() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    // Niente animazione: il grafico è creato mentre il tab è nascosto e
+                    // altrimenti si "muoverebbe" quando Chart.js lo ridimensiona alla sua
+                    // dimensione reale nel momento in cui il tab viene aperto.
+                    animation: false,
                     scales: {
                         x: { type: 'logarithmic', min: xLeftEdge, max: xRightEdge, title: { display: true, text: 'Tempo t (min) — scala log' } },
                         y: { type: 'linear', min: yAxisMin, max: yAxisMax, title: { display: true, text: 'H (mm)' }, ticks: yTicksConfig, grid: yGridConfig }
@@ -3599,6 +3643,10 @@ function initEdometricModule() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    // Niente animazione: il grafico è creato mentre il tab è nascosto e
+                    // altrimenti si "muoverebbe" quando Chart.js lo ridimensiona alla sua
+                    // dimensione reale nel momento in cui il tab viene aperto.
+                    animation: false,
                     scales: {
                         x: { type: 'linear', min: 0, max: xRightEdge, title: { display: true, text: '√t (√min)' } },
                         y: { type: 'linear', reverse: true, min: yAxisMin, max: yAxisMax, title: { display: true, text: 'Deformazione (mm)' }, ticks: yTicksConfig, grid: yGridConfig }
@@ -3684,12 +3732,12 @@ function initShearModule() {
     // finché i due rapporti non coincidono — senza mai restringere sotto il
     // minimo richiesto da neededX/neededY, cosi' non si taglia mai nulla.
     function fixAspect(chartArg) {
-        // Accetta il chart per parametro (passato da 'animation.onComplete',
-        // che Chart.js invoca con {chart}) invece di leggere solo la variabile
-        // di chiusura 'mohrChart': se il completamento dell'animazione scattasse
-        // in modo sincrono durante 'new Chart(...)' (prima che l'assegnazione
-        // 'mohrChart = new Chart(...)' sia stata eseguita), la sola variabile di
-        // chiusura sarebbe ancora null e la correzione verrebbe saltata.
+        // Accetta il chart per parametro (passato da 'onResize', che Chart.js
+        // invoca con (chart, size)) invece di leggere solo la variabile di
+        // chiusura 'mohrChart': se 'onResize' scattasse in modo sincrono durante
+        // 'new Chart(...)' (prima che l'assegnazione 'mohrChart = new Chart(...)'
+        // sia stata eseguita), la sola variabile di chiusura sarebbe ancora null
+        // e la correzione verrebbe saltata.
         const chart = chartArg || mohrChart;
         if (!chart) return;
         const area = chart.chartArea;
@@ -3841,12 +3889,27 @@ function initShearModule() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    // 'onComplete' (non un semplice 'animation:false') è necessario
-                    // perché fixAspect() ha bisogno della chartArea REALE dopo il
-                    // render: serve anche quando il tab viene sbloccato e il canvas,
-                    // fino a quel momento nascosto, viene ridimensionato da Chart.js.
-                    animation: {
-                        onComplete: (context) => fixAspect(context && context.chart)
+                    // Animazione disattivata: altrimenti, quando il tab (fino a quel
+                    // momento nascosto) diventa visibile e Chart.js ridimensiona il
+                    // canvas da 0 alla sua dimensione reale, si vede il grafico
+                    // "allungarsi" e poi scattare di colpo alla forma corretta non
+                    // appena fixAspect() la corregge. 'onResize' non dipende
+                    // dall'animazione (funziona anche con animation:false) ed è
+                    // l'hook giusto per intercettare il ridimensionamento del canvas,
+                    // ma scatta PRIMA che Chart.js rifaccia il layout per la nuova
+                    // dimensione: chartArea a quel punto è ancora quella vecchia (o
+                    // 0x0), quindi la correzione va rimandata con requestAnimationFrame
+                    // al momento giusto, appena prima del prossimo repaint — cosi'
+                    // l'utente non vede mai il fotogramma intermedio non corretto. Il
+                    // ciclo di 4 chiamate serve perché ogni correzione può cambiare
+                    // leggermente la larghezza delle etichette dell'asse (e quindi
+                    // l'area di disegno), richiedendo un ulteriore affinamento —
+                    // tutto sincrono e senza tween, dentro lo stesso rAF.
+                    animation: false,
+                    onResize: (chart) => {
+                        requestAnimationFrame(() => {
+                            for (let i = 0; i < 4; i++) fixAspect(chart);
+                        });
                     },
                     scales: {
                         x: {
@@ -3880,6 +3943,298 @@ function initShearModule() {
         t.s1Input.addEventListener('input', update);
     });
     [cInput, phiInput].forEach(input => input.addEventListener('input', update));
+
+    update();
+}
+
+// Modulo "Elementi di Meccanica": stato tensionale principale (σ1 orizzontale,
+// σ3 verticale, come nella figura dell'esercizio del capitolo) e costruzione
+// del punto rappresentativo di un piano inclinato di α sull'orizzontale con
+// il metodo del polo del cerchio di Mohr. Implementazione volutamente
+// indipendente da initShearModule() (nessuna funzione/variabile condivisa),
+// anche se entrambe disegnano un cerchio di Mohr con Chart.js: i due moduli
+// rispondono a domande diverse (qui: trasformazione delle tensioni su un
+// piano dato uno stato tensionale; là: inviluppo di rottura Mohr-Coulomb su
+// più prove) e la stessa convenzione di questo codice (vedi commenti su
+// mohrChart) preferisce copie separate a un accoppiamento fra moduli.
+function initMeccanicaModule() {
+    const s1Input = document.getElementById('mec-s1');
+    const s3Input = document.getElementById('mec-s3');
+    const alphaInput = document.getElementById('mec-alpha');
+    const canvas = document.getElementById('mecChart');
+    if (!s1Input || !s3Input || !alphaInput || !canvas) return;
+
+    const valS1 = document.getElementById('val-mec-s1');
+    const valS3 = document.getElementById('val-mec-s3');
+    const valAlpha = document.getElementById('val-mec-alpha');
+    const outSigma = document.getElementById('mec-out-sigma');
+    const outTau = document.getElementById('mec-out-tau');
+
+    // Colore del polo e della retta di costruzione che parte da esso (stesso
+    // teal già usato altrove nell'app per punti/rette ausiliarie di
+    // costruzione, es. B e C nel modulo cv-Taylor): riconoscibile a colpo
+    // d'occhio come "elemento di costruzione", distinto dal risultato finale
+    // (verde, come gli altri punti-risultato evidenziati nell'app) e dal
+    // cerchio stesso (blu, colore principale).
+    const POLE_COLOR = '#0d9488';
+    const P_COLOR = '#38a169';
+    const CIRCLE_COLOR = '#1E507F';
+    const GUIDE_COLOR = '#a0aec0';
+
+    let mecChart = null;
+    const ctx = canvas.getContext('2d');
+
+    // Estensione minima (in kPa) che i due assi devono coprire: ricalcolata
+    // ad ogni update() e riletta da fixAspect() per non restringere mai
+    // sotto questo minimo mentre allarga l'asse più "compresso" (vedi
+    // fixAspect in initShearModule per la spiegazione generale della
+    // tecnica; qui l'asse τ è centrato su 0, non parte da 0, perché τ può
+    // essere negativa).
+    let neededX = 300;
+    let neededY = 150;
+
+    function circlePoints(center, radius, steps = 90) {
+        const pts = [];
+        for (let i = 0; i <= steps; i++) {
+            const theta = 2 * Math.PI * (i / steps);
+            pts.push({ x: center + radius * Math.cos(theta), y: radius * Math.sin(theta) });
+        }
+        return pts;
+    }
+
+    // Vedi il commento su fixAspect() in initShearModule per la logica di
+    // base. Qui l'asse σ parte sempre da 0 (le tensioni principali di questo
+    // modulo sono per costruzione ≥0) mentre l'asse τ resta simmetrico
+    // attorno a 0 (τ.min = -τ.max ad ogni correzione), perché τ può essere
+    // negativa (il punto P dell'esercizio ha τ<0).
+    function fixAspect(chartArg) {
+        const chart = chartArg || mecChart;
+        if (!chart) return;
+        const area = chart.chartArea;
+        if (!area) return;
+        const pxWidth = area.right - area.left;
+        const pxHeight = area.bottom - area.top;
+        if (!(pxWidth > 0) || !(pxHeight > 0)) return;
+
+        const xMaxNow = chart.scales.x.max;
+        const yMaxNow = chart.scales.y.max;
+        if (!(xMaxNow > 0) || !(yMaxNow > 0)) return;
+
+        const pxPerUnitX = pxWidth / xMaxNow;
+        const pxPerUnitY = pxHeight / (2 * yMaxNow);
+        const mismatch = Math.abs(pxPerUnitX - pxPerUnitY) / Math.max(pxPerUnitX, pxPerUnitY);
+        if (mismatch < 0.01) return; // già circolare: evita un update infinito
+
+        const pxRatio = pxWidth / pxHeight;
+        let finalX = neededX;
+        let finalYHalf = finalX / pxRatio / 2;
+        if (finalYHalf < neededY) {
+            finalYHalf = neededY;
+            finalX = finalYHalf * 2 * pxRatio;
+        }
+
+        chart.options.scales.x.max = finalX;
+        chart.options.scales.y.max = finalYHalf;
+        chart.options.scales.y.min = -finalYHalf;
+        chart.update('none');
+    }
+
+    // Etichette "σ3", "σ1", "Polo", "P" disegnate direttamente sul grafico
+    // (stessa tecnica di casagrandeLabelsPlugin più sopra), invece di una
+    // legenda separata: con 5 dataset fra cerchio, rette di costruzione e
+    // punti, una legenda standard di Chart.js sarebbe più confusa che utile.
+    const mecLabelsPlugin = {
+        id: 'mecLabels',
+        afterDatasetsDraw(chart) {
+            const { ctx: c, scales } = chart;
+            if (!chart.__mecLabels) return;
+            c.save();
+            c.font = '600 12px Outfit, sans-serif';
+            c.textBaseline = 'bottom';
+            chart.__mecLabels.forEach(l => {
+                const px = scales.x.getPixelForValue(l.x);
+                const py = scales.y.getPixelForValue(l.y);
+                if (px < scales.x.left - 5 || px > scales.x.right + 5) return;
+                if (py < scales.y.top - 5 || py > scales.y.bottom + 5) return;
+                c.fillStyle = l.color;
+                c.fillText(l.text, px + l.dx, py + l.dy);
+            });
+            c.restore();
+        }
+    };
+
+    function update() {
+        // σ1 non può scendere sotto σ3 (tensione principale maggiore ≥
+        // minore): stesso pattern di validazione già usato per gli slider
+        // σ'3/σ'1 del modulo Resistenza al Taglio.
+        const s3 = parseFloat(s3Input.value);
+        s1Input.min = s3;
+        let s1 = parseFloat(s1Input.value);
+        if (s1 < s3) {
+            s1 = s3;
+            s1Input.value = s1;
+        }
+        const alphaDeg = parseFloat(alphaInput.value);
+
+        valS1.textContent = s1.toFixed(0);
+        valS3.textContent = s3.toFixed(0);
+        valAlpha.textContent = alphaDeg.toFixed(0);
+
+        const s = (s1 + s3) / 2; // centro del cerchio
+        const t = (s1 - s3) / 2; // raggio del cerchio
+        const alphaRad = alphaDeg * Math.PI / 180;
+
+        // Punto sul piano inclinato di α, ottenuto per via puramente
+        // geometrica dal metodo del polo (non da una formula incollata):
+        // il polo è (σ1, 0) perché σ1 agisce sul piano verticale, quindi la
+        // retta per il polo parallela al piano fisico cercato (inclinato di
+        // α sull'orizzontale, il piano su cui agisce σ3) ha direzione α; la
+        // sua seconda intersezione con il cerchio (oltre al polo stesso) dà
+        // [risolvendo (x-s)²+y²=t² con x=σ1+u·cosα, y=u·sinα, u≠0]:
+        //   σ = s − t·cos(2α),  τ = −t·sin(2α)
+        // Per σ1=250, σ3=110, α=30° questo riproduce esattamente l'esempio
+        // del capitolo: σ=145 kPa, τ=−60.6 kPa.
+        const sigma = s - t * Math.cos(2 * alphaRad);
+        const tau = -t * Math.sin(2 * alphaRad);
+
+        outSigma.textContent = sigma.toFixed(1) + ' kPa';
+        outTau.textContent = tau.toFixed(1) + ' kPa';
+
+        const pole = { x: s1, y: 0 };
+        const P = { x: sigma, y: tau };
+
+        neededX = Math.max(100, Math.ceil((s1 * 1.25) / 25) * 25);
+        neededY = Math.max(75, Math.ceil((Math.max(t, Math.abs(tau)) * 1.35) / 25) * 25);
+
+        const datasets = [
+            {
+                label: 'Cerchio di Mohr',
+                data: circlePoints(s, t),
+                borderColor: CIRCLE_COLOR,
+                backgroundColor: 'transparent',
+                borderWidth: 2.5,
+                pointRadius: 0,
+                tension: 0
+            },
+            {
+                label: 'Retta per il polo (inclinazione α)',
+                data: [pole, P],
+                borderColor: POLE_COLOR,
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                pointRadius: 0,
+                tension: 0
+            },
+            {
+                label: 'Proiezione su σ',
+                data: [{ x: P.x, y: 0 }, P],
+                borderColor: GUIDE_COLOR,
+                backgroundColor: 'transparent',
+                borderWidth: 1.5,
+                borderDash: [4, 3],
+                pointRadius: 0,
+                tension: 0
+            },
+            {
+                label: 'Proiezione su τ',
+                data: [{ x: 0, y: P.y }, P],
+                borderColor: GUIDE_COLOR,
+                backgroundColor: 'transparent',
+                borderWidth: 1.5,
+                borderDash: [4, 3],
+                pointRadius: 0,
+                tension: 0
+            },
+            {
+                label: 'σ3, σ1',
+                data: [{ x: s3, y: 0 }, { x: s1, y: 0 }],
+                borderColor: CIRCLE_COLOR,
+                backgroundColor: CIRCLE_COLOR,
+                pointRadius: 4,
+                pointStyle: 'circle',
+                showLine: false
+            },
+            {
+                label: 'Polo',
+                data: [pole],
+                borderColor: POLE_COLOR,
+                backgroundColor: '#ffffff',
+                borderWidth: 2,
+                pointRadius: 5,
+                pointStyle: 'rectRot',
+                showLine: false
+            },
+            {
+                label: 'P',
+                data: [P],
+                borderColor: P_COLOR,
+                backgroundColor: P_COLOR,
+                pointRadius: 6,
+                pointStyle: 'star',
+                showLine: false
+            }
+        ];
+
+        if (mecChart) {
+            mecChart.data.datasets = datasets;
+            mecChart.__mecLabels = [
+                { x: s3, y: 0, text: 'σ3', color: CIRCLE_COLOR, dx: -18, dy: -6 },
+                { x: s1, y: 0, text: 'σ1 / Polo', color: POLE_COLOR, dx: 6, dy: -10 },
+                { x: P.x, y: P.y, text: 'P', color: P_COLOR, dx: 8, dy: -8 }
+            ];
+            mecChart.options.scales.x.max = neededX;
+            mecChart.options.scales.y.max = neededY;
+            mecChart.options.scales.y.min = -neededY;
+            mecChart.update('none');
+            fixAspect();
+        } else {
+            mecChart = new Chart(ctx, {
+                type: 'line',
+                data: { datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    // animation:false + onResize/rAF: stessa tecnica (e stessa
+                    // ragione) di mohrChart in initShearModule — evita che il
+                    // grafico si "allunghi" e scatti quando il tab, fino a quel
+                    // momento nascosto, diventa visibile.
+                    animation: false,
+                    onResize: (chart) => {
+                        requestAnimationFrame(() => {
+                            for (let i = 0; i < 4; i++) fixAspect(chart);
+                        });
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            min: 0,
+                            max: neededX,
+                            title: { display: true, text: 'Tensione normale σ (kPa)' }
+                        },
+                        y: {
+                            type: 'linear',
+                            min: -neededY,
+                            max: neededY,
+                            title: { display: true, text: 'Tensione tangenziale τ (kPa)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                },
+                plugins: [mecLabelsPlugin]
+            });
+            mecChart.__mecLabels = [
+                { x: s3, y: 0, text: 'σ3', color: CIRCLE_COLOR, dx: -18, dy: -6 },
+                { x: s1, y: 0, text: 'σ1 / Polo', color: POLE_COLOR, dx: 6, dy: -10 },
+                { x: P.x, y: P.y, text: 'P', color: P_COLOR, dx: 8, dy: -8 }
+            ];
+            mecChart.update('none');
+        }
+    }
+
+    [s1Input, s3Input, alphaInput].forEach(input => input.addEventListener('input', update));
 
     update();
 }
