@@ -26,6 +26,7 @@
         <button class="tab-btn" type="button" role="tab" data-tab="edometrica" aria-selected="false">Compressione Edometrica</button>
         <button class="tab-btn" type="button" role="tab" data-tab="taglio" aria-selected="false">Resistenza al Taglio</button>
         <button class="tab-btn" type="button" role="tab" data-tab="differenziale" aria-selected="false">Cedimenti delle Fondazioni</button>
+        <button class="tab-btn" type="button" role="tab" data-tab="meccanica" aria-selected="false">Elementi di Meccanica</button>
     </nav>
 
     <main class="dashboard">
@@ -52,7 +53,10 @@
                                 <tbody id="gran-table-body"></tbody>
                             </table>
                         </div>
-                        <button type="button" id="gran-add-row" class="gran-btn">+ Aggiungi punto</button>
+                        <div class="gran-add-buttons">
+                            <button type="button" id="gran-add-row-sieve" class="gran-btn">+ Punto setacciatura</button>
+                            <button type="button" id="gran-add-row-sed" class="gran-btn">+ Punto sedimentazione</button>
+                        </div>
                     </div>
 
                     <div class="gran-main-chart">
@@ -427,7 +431,7 @@
             <div class="module-content edo-subpanel sp-content" data-edo-subpanel="sigmap">
                 <div class="sp-top-row">
                     <div class="controls-panel sp-data-panel">
-                        <h3 class="gran-panel-title">Dati della prova (&sigma;', e)</h3>
+                        <h3 class="gran-panel-title">Dati della prova (<span class="sym-nocaps">&sigma;'</span>, e)</h3>
                         <div class="gran-table-wrap">
                             <table class="gran-table">
                                 <thead><tr><th>&sigma;' (kPa)</th><th>e</th><th></th></tr></thead>
@@ -454,7 +458,7 @@
                             <div class="sif-readout-row"><span>Pendenza tangente in A (de/dlog&sigma;')</span><span id="sp-slope">&mdash;</span></div>
                         </div>
                         <div class="gran-result-card gran-result-highlight">
-                            <h3 class="gran-panel-title">&sigma;'<sub>p</sub> stimata (costruzione)</h3>
+                            <h3 class="gran-panel-title"><span class="sym-nocaps">&sigma;'</span><sub>p</sub> stimata (costruzione)</h3>
                             <div class="gran-big-result" id="sp-est">&mdash; kPa</div>
                         </div>
                     </div>
@@ -639,6 +643,57 @@
                     </div>
                     <div class="mohr-plane-info">
                         Piano di rottura teorico a <strong><span id="mohr-plane-angle">60.0</span>°</strong> dal piano su cui agisce σ'<sub>3</sub> (45° + φ'/2)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modulo 7: Elementi di Meccanica -->
+        <section class="module-card" data-tab-panel="meccanica" hidden>
+            <header class="module-header">
+                <h2>Elementi di Meccanica — Cerchio di Mohr</h2>
+                <p>Dato lo stato tensionale principale (σ<sub>1</sub> orizzontale, σ<sub>3</sub> verticale), determina graficamente le tensioni su un piano inclinato con il metodo del polo del cerchio di Mohr</p>
+            </header>
+
+            <div class="module-content">
+                <div class="controls-panel">
+                    <div class="mec-element-diagram">
+                        <div class="mec-element-box"></div>
+                        <span class="mec-arrow-label mec-arrow-top">σ<sub>3</sub> ↓</span>
+                        <span class="mec-arrow-label mec-arrow-bottom">↑ σ<sub>3</sub></span>
+                        <span class="mec-arrow-label mec-arrow-left">σ<sub>1</sub> →</span>
+                        <span class="mec-arrow-label mec-arrow-right">← σ<sub>1</sub></span>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="mec-s1">σ<sub>1</sub> (kPa): <span id="val-mec-s1">250</span></label>
+                        <input type="range" id="mec-s1" min="0" max="500" step="5" value="250">
+                    </div>
+                    <div class="control-group">
+                        <label for="mec-s3">σ<sub>3</sub> (kPa): <span id="val-mec-s3">110</span></label>
+                        <input type="range" id="mec-s3" min="0" max="500" step="5" value="110">
+                    </div>
+                    <div class="control-group">
+                        <label for="mec-alpha">Inclinazione del piano α sull'orizzontale (°): <span id="val-mec-alpha">30</span></label>
+                        <input type="range" id="mec-alpha" min="0" max="180" step="1" value="30">
+                    </div>
+
+                    <div class="sif-readout">
+                        <div class="sif-readout-row"><span>σ sul piano</span><span id="mec-out-sigma">—</span></div>
+                        <div class="sif-readout-row"><span>τ sul piano</span><span id="mec-out-tau">—</span></div>
+                    </div>
+
+                    <div class="formula">
+                        $$ \sigma = \frac{\sigma_1+\sigma_3}{2} - \frac{\sigma_1-\sigma_3}{2}\cos 2\alpha \qquad \tau = -\frac{\sigma_1-\sigma_3}{2}\sin 2\alpha $$
+                    </div>
+                </div>
+
+                <div class="visualization-panel mec-viz-panel">
+                    <div class="chart-panel">
+                        <canvas id="mecChart"></canvas>
+                    </div>
+                    <div class="mohr-plane-info">
+                        <strong>Metodo del polo:</strong> il polo si trova nel punto σ<sub>1</sub> dell'asse (perché σ<sub>1</sub> agisce sul piano verticale). Dal polo si traccia la retta inclinata di α rispetto all'orizzontale (il piano su cui agisce σ<sub>3</sub>): la sua intersezione con il cerchio è il punto <strong>P</strong>, che rappresenta lo stato tensionale sul piano cercato.
                     </div>
                 </div>
             </div>

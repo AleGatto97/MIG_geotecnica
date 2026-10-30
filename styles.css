@@ -22,6 +22,20 @@
     box-sizing: border-box;
 }
 
+/* Animazioni disattivate ovunque (in aggiunta ad "animation:false" sui
+   grafici Chart.js in app.js): tutti i grafici vengono creati mentre il loro
+   modulo è ancora nascosto, e qualunque transizione CSS su un elemento sopra
+   o accanto al grafico — anche solo un cambio di colore al click su una
+   sotto-scheda — può spostare la pagina di qualche pixel per la durata della
+   transizione mentre il layout si assesta, dando l'impressione che il
+   grafico "si muova" appena il modulo viene aperto. Il colpo d'occhio delle
+   transizioni su hover/click non vale il rischio di questo effetto, quindi
+   sono disattivate del tutto invece di scovarle e correggerle una per una. */
+* {
+    transition: none !important;
+    animation: none !important;
+}
+
 body {
     font-family: 'Outfit', sans-serif;
     background-color: var(--bg-color);
@@ -69,8 +83,9 @@ body {
     font-weight: 500;
 }
 
-/* 6 moduli, sempre su due righe da tre (una sola colonna sotto i 700px,
-   dove tre affiancati sarebbero troppo stretti per il testo). */
+/* 7 moduli: due righe piene da tre più un settimo da solo sull'ultima riga
+   (una sola colonna sotto i 700px, dove tre affiancati sarebbero troppo
+   stretti per il testo). */
 .tabs {
     max-width: 1500px;
     margin: 0 auto 2rem;
@@ -729,6 +744,15 @@ input[type=range]::-webkit-slider-thumb:hover {
     }
 }
 
+/* Il greco σ (a differenza delle lettere latine) ha una vera maiuscola di
+   forma diversa (Σ): dentro un titolo con text-transform:uppercase verrebbe
+   trasformato visivamente in quel simbolo, mentre nel resto dell'app resta
+   sempre minuscolo — risultando inconsistente. Questa classe esclude il
+   simbolo dalla trasformazione, lasciando il resto del titolo maiuscolo. */
+.sym-nocaps {
+    text-transform: none;
+}
+
 .gran-panel-title {
     font-size: 0.85rem;
     font-weight: 700;
@@ -886,6 +910,12 @@ input[type=range]::-webkit-slider-thumb:hover {
     font-weight: 600;
     cursor: pointer;
     transition: background 0.15s ease;
+}
+
+.gran-add-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .gran-btn:hover {
@@ -1514,6 +1544,80 @@ input[type=range]::-webkit-slider-thumb:hover {
 
 .mohr-plane-info strong {
     color: var(--accent);
+}
+
+/* Modulo Elementi di Meccanica: stesso pattern di ".mohr-viz-panel" (grafico
+   impilato sopra la nota esplicativa, altezza fissa per cerchi davvero
+   circolari), ma con classe propria: le due implementazioni JS restano
+   indipendenti (vedi commento in app.js su initMeccanicaModule), quindi
+   anche il CSS non viene condiviso fra i due moduli. */
+.mec-viz-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+}
+
+.mec-viz-panel .chart-panel {
+    flex: none;
+    width: 100%;
+    height: 600px;
+}
+
+@media (max-width: 600px) {
+    .mec-viz-panel .chart-panel {
+        height: 260px;
+    }
+}
+
+/* Piccolo schema statico dell'elemento tensionale (σ1 orizzontale, σ3
+   verticale, come nella figura dell'esercizio): puramente illustrativo,
+   aiuta lo studente ad associare gli slider alla direzione fisica delle
+   tensioni prima di leggere il grafico del cerchio di Mohr. */
+.mec-element-diagram {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 0.5rem;
+}
+
+.mec-element-box {
+    position: absolute;
+    inset: 32px;
+    border: 2px solid var(--text-main);
+    background: #ffffff;
+}
+
+.mec-arrow-label {
+    position: absolute;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+}
+
+.mec-arrow-top {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.mec-arrow-bottom {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.mec-arrow-left {
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.mec-arrow-right {
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .sif-gauge-labels {
