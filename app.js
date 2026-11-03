@@ -3161,26 +3161,32 @@ function initEdometricModule() {
         let drainage = 'double';
         let chart = null;
 
-        // Dati di partenza: lettura di deformazione (mm, crescente) nel tempo t (min)
-        // durante un gradino di carico edometrico, pensati per il metodo di Taylor
-        // (retta AB sul tratto iniziale, retta AC a 1.15x). Interamente modificabili
-        // dalla tabella. Lo spessore campione H e' un valore a parte (serve solo per
-        // il percorso di drenaggio d), non fa parte della curva di deformazione.
+        // Dati di partenza: letture del comparatore (mm) nel tempo t (min) durante un
+        // gradino di carico edometrico. Il comparatore segna valori che DIMINUISCONO
+        // man mano che il campione si comprime: validPoints() le converte nella
+        // deformazione δ = lettura iniziale − lettura (crescente, 0 per t=0), che e'
+        // la grandezza riportata sul grafico e usata dalla costruzione di Taylor.
+        // Se invece le letture inserite crescono, δ = lettura − lettura iniziale.
+        // Interamente modificabili dalla tabella. Lo spessore campione H e' un valore
+        // a parte (serve solo per il percorso di drenaggio d), non fa parte della curva.
         let points = [
-            { t: 0.25, def: 2.04 },
-            { t: 0.5, def: 2.82 },
-            { t: 1, def: 3.89 },
-            { t: 2, def: 5.13 },
-            { t: 4, def: 6.02 },
-            { t: 6, def: 6.25 },
-            { t: 9, def: 6.33 },
-            { t: 12, def: 6.36 },
-            { t: 16, def: 6.38 },
-            { t: 20, def: 6.40 },
-            { t: 25, def: 6.42 },
-            { t: 36, def: 6.46 },
-            { t: 49, def: 6.49 },
-            { t: 64, def: 6.51 }
+            { t: 0, def: 15.99 },
+            { t: 0.25, def: 15.66 },
+            { t: 0.5, def: 15.61 },
+            { t: 1, def: 15.52 },
+            { t: 2.25, def: 15.40 },
+            { t: 4, def: 15.27 },
+            { t: 9, def: 15.00 },
+            { t: 16, def: 14.74 },
+            { t: 25, def: 14.48 },
+            { t: 36, def: 14.27 },
+            { t: 49, def: 14.14 },
+            { t: 64, def: 14.05 },
+            { t: 81, def: 13.99 },
+            { t: 100, def: 13.95 },
+            { t: 200, def: 13.83 },
+            { t: 400, def: 13.75 },
+            { t: 1440, def: 13.60 }
         ];
 
         // Stato della costruzione: bEnd = ascissa (radice di t) scelta come fine del
@@ -3346,6 +3352,14 @@ function initEdometricModule() {
                     out.push(pt);
                 }
             });
+            // Lettura del comparatore -> deformazione δ (0 alla prima riga): se le
+            // letture calano nel tempo (comparatore che si comprime) δ = L0 − L,
+            // altrimenti δ = L − L0. Cosi' la curva parte sempre da 0 e cresce.
+            if (out.length >= 2) {
+                const L0 = out[0].def;
+                const dir = out[out.length - 1].def < L0 ? -1 : 1;
+                out.forEach(pt => { pt.y = dir * (pt.def - L0); });
+            }
             return out;
         }
 
