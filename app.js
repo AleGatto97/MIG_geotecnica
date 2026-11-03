@@ -3567,19 +3567,25 @@ function initEdometricModule() {
             let yAxisMax = Math.ceil((yMaxData + yPad) / yStep) * yStep;
             if (yAxisMin >= yMinData - 1e-9) yAxisMin -= yStep;
             if (yAxisMax <= yMaxData + 1e-9) yAxisMax += yStep;
+            // L'asse della deformazione parte sempre da 0 all'origine (cresce verso
+            // l'alto, come l'asse delle ascisse verso destra): non piu' invertito e
+            // non piu' tagliato sul minimo dei dati.
+            // (solo se qualche valore e' negativo, es. intercetta D0 anomala, il minimo
+            // resta quello calcolato, cosi' nulla esce dal grafico.)
+            if (yMinData >= 0) yAxisMin = 0;
 
             // Percorso della costruzione ausiliaria (verticale-orizzontale-verticale)
             // che mostra come si ottiene il punto sulla retta AC a partire da AB:
             // sale da x=xAux fino a B (su AB), va in orizzontale fino a x=1.15*xAux
-            // (alla stessa quota), poi scende fino all'asse delle ascisse.
+            // (alla stessa quota), poi torna giu' fino all'asse delle ascisse.
             let auxConstructionData = [];
             let auxPointsData = [];
             if (xAux !== null) {
                 auxConstructionData = [
-                    { x: xAux, y: yAxisMax },
+                    { x: xAux, y: yAxisMin },
                     { x: xAux, y: yAux },
                     { x: xAuxC, y: yAux },
-                    { x: xAuxC, y: yAxisMax }
+                    { x: xAuxC, y: yAxisMin }
                 ];
                 auxPointsData = [{ x: xAux, y: yAux }, { x: xAuxC, y: yAux }];
             }
@@ -3649,7 +3655,7 @@ function initEdometricModule() {
                     animation: false,
                     scales: {
                         x: { type: 'linear', min: 0, max: xRightEdge, title: { display: true, text: '√t (√min)' } },
-                        y: { type: 'linear', reverse: true, min: yAxisMin, max: yAxisMax, title: { display: true, text: 'Deformazione (mm)' }, ticks: yTicksConfig, grid: yGridConfig }
+                        y: { type: 'linear', min: yAxisMin, max: yAxisMax, title: { display: true, text: 'Deformazione (mm)' }, ticks: yTicksConfig, grid: yGridConfig }
                     },
                     plugins: {
                         legend: { position: 'bottom', labels: { boxWidth: 14, font: { size: 10 } } },
