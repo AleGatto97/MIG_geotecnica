@@ -3388,10 +3388,10 @@ function initEdometricModule() {
                 hintOut.textContent = 'Passo 2: traccia la retta AB, interpolatrice del primo tratto lineare (A = U=0%).';
                 hintOut.className = 'sif-status sif-status-neutral';
             } else if (!hasAC) {
-                hintOut.textContent = 'Passo 3: traccia la retta orizzontale AC con AC = 1.15·AB (individua B e C).';
+                hintOut.textContent = 'Passo 3: traccia la retta orizzontale AC, con AC = 1.15·AB: incontra AB in B e la curva in C.';
                 hintOut.className = 'sif-status sif-status-neutral';
             } else if (!hasD90) {
-                hintOut.textContent = 'Passo 4: il punto C corrisponde a U=90%: la sua ascissa dà t90 (e quindi cv).';
+                hintOut.textContent = 'Passo 4: determina il punto C (U=90%): la sua ascissa dà t90 e quindi cv.';
                 hintOut.className = 'sif-status sif-status-neutral';
             } else {
                 hintOut.textContent = 'Costruzione completata: cv è calcolato da d e da t90.';
@@ -3544,7 +3544,7 @@ function initEdometricModule() {
                 xBac = sq90 / 1.15;
                 lineACData = [{ x: 0, y: y90 }, { x: sq90, y: y90 }];
                 pointBacData = [{ x: xBac, y: y90 }];
-                pointCData = [{ x: sq90, y: y90 }];
+                if (hasD90) pointCData = [{ x: sq90, y: y90 }];
             }
 
             let t90 = null, cvEst = null;
@@ -3654,7 +3654,7 @@ function initEdometricModule() {
                         { label: 'Fine tratto lineare (scelta)', data: pointB, order: 3, borderColor: '#ffffff', backgroundColor: '#4a5568', borderWidth: 2, pointRadius: 6, showLine: false },
                         { label: 'Retta AB (tratto iniziale)', data: lineABData, borderColor: '#dd6b20', borderWidth: 2, pointRadius: 0, tension: 0 },
                         { label: 'Retta AC (orizzontale, AC = 1.15·AB)', data: lineACData, order: 4, borderColor: '#805ad5', borderWidth: 2.5, pointRadius: 0, tension: 0 },
-                        { label: 'Punto C (U=90%)', data: pointCData, order: 0, borderColor: '#ffffff', backgroundColor: '#16a34a', borderWidth: 2.5, pointRadius: 10, pointHoverRadius: 11, pointStyle: 'circle', showLine: false },
+                        { label: 'Punto C (U=90%)', data: pointCData, order: 0, borderColor: '#ffffff', backgroundColor: '#16a34a', borderWidth: 2, pointRadius: 6, pointHoverRadius: 8, pointStyle: 'circle', showLine: false },
                         { label: 'Punto A (U=0%)', data: pointA0, order: 1, borderColor: '#ffffff', backgroundColor: '#e53e3e', borderWidth: 2, pointRadius: 7, showLine: false },
                         { label: 't90 (verticale da C)', data: dropData, borderColor: '#38a169', borderWidth: 1.5, borderDash: [4, 3], pointRadius: 0, tension: 0 },
                         { label: 'Punto B (AB ∩ AC)', data: pointBacData, order: 2, borderColor: '#ffffff', backgroundColor: '#805ad5', borderWidth: 2, pointRadius: 7, pointStyle: 'rectRot', showLine: false },
