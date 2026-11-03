@@ -524,7 +524,7 @@
                         <h3 class="gran-panel-title">Dati della prova (t, deformazione)</h3>
                         <div class="control-group">
                             <label for="cvt-H">Spessore iniziale campione H (mm)</label>
-                            <input type="number" id="cvt-H" step="0.1" min="1" value="20">
+                            <input type="number" id="cvt-H" step="0.1" min="1" value="14.8">
                         </div>
                         <div class="control-group">
                             <label>Drenaggio</label>
@@ -546,9 +546,9 @@
                         <div id="cvt-hint" class="sif-status sif-status-neutral">&mdash;</div>
                         <div class="sp-step-buttons">
                             <button type="button" id="cvt-btn-suggest" class="flow-btn" title="Individua automaticamente dove finisce il tratto iniziale rettilineo">Suggerisci</button>
-                            <button type="button" id="cvt-btn-ab" class="gran-btn" disabled title="Interpola con una retta i punti del tratto iniziale scelto">1. Retta AB</button>
-                            <button type="button" id="cvt-btn-ac" class="gran-btn" disabled title="Retta dalla stessa origine, ascisse 1.15 volte quelle della retta AB">2. Retta AC</button>
-                            <button type="button" id="cvt-btn-d90" class="gran-btn" disabled title="Trova il punto C, intersezione fra la retta AC e la curva sperimentale: dà t90 e permette di calcolare cv">3. Trova C</button>
+                            <button type="button" id="cvt-btn-ab" class="gran-btn" disabled title="Retta interpolatrice del primo tratto lineare della curva (dal punto A, U=0%, fino alla fine del tratto scelto)">1. Retta AB</button>
+                            <button type="button" id="cvt-btn-ac" class="gran-btn" disabled title="Retta orizzontale per A tale che AC = 1.15 AB: incontra la retta AB in B e la curva in C">2. Retta AC</button>
+                            <button type="button" id="cvt-btn-d90" class="gran-btn" disabled title="Il punto C corrisponde a U=90%: la sua ascissa dà t90 e permette di calcolare cv">3. t90 da C</button>
                             <button type="button" id="cvt-btn-reset" class="flow-btn" disabled title="Cancella la costruzione e riparti dalla scelta del tratto iniziale">Reset</button>
                         </div>
                         <div class="sif-readout">

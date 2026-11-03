@@ -3382,16 +3382,16 @@ function initEdometricModule() {
                 hintOut.textContent = 'Inserisci almeno due punti (t, deformazione) validi per tracciare la curva.';
                 hintOut.className = 'sif-status sif-status-critical';
             } else if (bEnd === null) {
-                hintOut.textContent = "Passo 1: clicca sul grafico per scegliere la fine del tratto iniziale.";
+                hintOut.textContent = 'Passo 1: clicca sul grafico per scegliere la fine del primo tratto lineare.';
                 hintOut.className = 'sif-status sif-status-neutral';
             } else if (!hasAB) {
-                hintOut.textContent = 'Passo 2: costruisci la retta AB.';
+                hintOut.textContent = 'Passo 2: traccia la retta AB, interpolatrice del primo tratto lineare (A = U=0%).';
                 hintOut.className = 'sif-status sif-status-neutral';
             } else if (!hasAC) {
-                hintOut.textContent = 'Passo 3: costruisci la retta AC (1.15×AB).';
+                hintOut.textContent = 'Passo 3: traccia la retta orizzontale AC con AC = 1.15·AB (individua B e C).';
                 hintOut.className = 'sif-status sif-status-neutral';
             } else if (!hasD90) {
-                hintOut.textContent = 'Passo 4: trova il punto C, intersezione fra AC e la curva (dà t90 e cv).';
+                hintOut.textContent = 'Passo 4: il punto C corrisponde a U=90%: la sua ascissa dà t90 (e quindi cv).';
                 hintOut.className = 'sif-status sif-status-neutral';
             } else {
                 hintOut.textContent = 'Costruzione completata: cv è calcolato da d e da t90.';
@@ -3516,22 +3516,14 @@ function initEdometricModule() {
                 lineABData = [{ x: 0, y: c0 }, { x: xRightEdge, y: c0 + m0 * xRightEdge }];
             }
 
-            let mAC = null, lineACData = [];
-            let xAux = null, yAux = null, xAuxC = null;
+            // Retta AC (come nelle slide): segmento ORIZZONTALE che parte da A (sull'asse
+            // delle ordinate, quota D0), incontra la retta AB in B e la curva in C, a
+            // una quota tale che AC = 1.15 AB. Si trova C come intersezione fra la curva
+            // e la retta per A con pendenza m0/1.15 (stessa quota => ascissa 1.15 volte).
+            let mAC = null, lineACData = [], pointBacData = [];
+            let sq90 = null, y90 = null, xBac = null, pointCData = [];
             if (hasAC && c0 !== null && m0 !== null) {
                 mAC = m0 / 1.15;
-                lineACData = [{ x: 0, y: c0 }, { x: xRightEdge, y: c0 + mAC * xRightEdge }];
-                // Costruzione ausiliaria "riga e squadra" della retta AC: si sceglie
-                // un'ascissa comoda (qui bEnd), si sale fino alla retta AB (punto B),
-                // si traccia l'orizzontale per B e si riporta 1.15 volte la distanza
-                // dall'asse y per ottenere il punto sulla retta AC alla stessa quota.
-                xAux = bEnd;
-                yAux = c0 + m0 * xAux;
-                xAuxC = 1.15 * xAux;
-            }
-
-            let sq90 = null, y90 = null, pointD90Data = [];
-            if (hasD90 && mAC !== null) {
                 let crossIdx = -1;
                 for (let i = 1; i < curveData.length; i++) {
                     const diffPrev = curveData[i - 1].y - (c0 + mAC * curveData[i - 1].x);
@@ -3549,7 +3541,10 @@ function initEdometricModule() {
                     sq90 = curveData[curveData.length - 1].x;
                     y90 = curveData[curveData.length - 1].y;
                 }
-                pointD90Data = [{ x: sq90, y: y90 }];
+                xBac = sq90 / 1.15;
+                lineACData = [{ x: 0, y: y90 }, { x: sq90, y: y90 }];
+                pointBacData = [{ x: xBac, y: y90 }];
+                pointCData = [{ x: sq90, y: y90 }];
             }
 
             let t90 = null, cvEst = null;
@@ -3561,7 +3556,7 @@ function initEdometricModule() {
             // U=100% (fine della consolidazione primaria), per proporzione:
             // DeltaH100 = (10/9) * DeltaH90, misurate a partire da D0 (punto A).
             let d100 = null;
-            if (y90 !== null && c0 !== null) {
+            if (hasD90 && y90 !== null && c0 !== null) {
                 d100 = c0 + (10 / 9) * (y90 - c0);
             }
 
@@ -3570,7 +3565,7 @@ function initEdometricModule() {
 
             c0Out.textContent = c0 !== null ? disp(c0).toFixed(3) + ' mm' : '—';
             m0Out.textContent = m0 !== null ? (vp.dir * m0).toFixed(4) + ' mm/√min' : '—';
-            d90Out.textContent = y90 !== null ? disp(y90).toFixed(3) + ' mm' : '—';
+            d90Out.textContent = (hasD90 && y90 !== null) ? disp(y90).toFixed(3) + ' mm' : '—';
             d100Out.textContent = d100 !== null ? disp(d100).toFixed(3) + ' mm' : '—';
             t90Out.textContent = t90 !== null ? t90.toFixed(2) + ' min' : '—';
             estOut.textContent = cvEst !== null ? formatCvM2S(cvEst) : '—';
@@ -3581,6 +3576,7 @@ function initEdometricModule() {
             const allYs = vp.map(p => disp(p.y));
             if (c0 !== null) allYs.push(disp(c0));
             if (y90 !== null) allYs.push(disp(y90));
+            if (d100 !== null) allYs.push(disp(d100));
             const yMinData = Math.min(...allYs), yMaxData = Math.max(...allYs);
             const yPad = Math.max(0.15, (yMaxData - yMinData) * 0.1);
             const yStep = niceStep((yMaxData + yPad) - (yMinData - yPad));
@@ -3589,20 +3585,12 @@ function initEdometricModule() {
             if (yAxisMin >= yMinData - 1e-9) yAxisMin -= yStep;
             if (yAxisMax <= yMaxData + 1e-9) yAxisMax += yStep;
 
-            // Percorso della costruzione ausiliaria (verticale-orizzontale-verticale)
-            // che mostra come si ottiene il punto sulla retta AC a partire da AB:
-            // sale da x=xAux fino a B (su AB), va in orizzontale fino a x=1.15*xAux
-            // (alla stessa quota), poi torna giu' fino all'asse delle ascisse.
-            let auxConstructionData = [];
-            let auxPointsData = [];
-            if (xAux !== null) {
-                auxConstructionData = [
-                    { x: xAux, y: yAxisMin },
-                    { x: xAux, y: disp(yAux) },
-                    { x: xAuxC, y: disp(yAux) },
-                    { x: xAuxC, y: yAxisMin }
-                ];
-                auxPointsData = [{ x: xAux, y: disp(yAux) }, { x: xAuxC, y: disp(yAux) }];
+            // Con "Trova C": verticale da C fino all'asse delle ascisse (t90) e
+            // livello U=100% (DeltaH100 = 10/9 DeltaH90), tratteggiato.
+            let dropData = [], level100Data = [];
+            if (hasD90 && sq90 !== null) {
+                dropData = [{ x: sq90, y: yAxisMin }, { x: sq90, y: disp(y90) }];
+                if (d100 !== null) level100Data = [{ x: 0, y: disp(d100) }, { x: xRightEdge, y: disp(d100) }];
             }
 
             // Dataset riportati in letture del comparatore (asse y = valori letti)
@@ -3612,7 +3600,8 @@ function initEdometricModule() {
             pointB = toDisp(pointB);
             lineABData = toDisp(lineABData);
             lineACData = toDisp(lineACData);
-            pointD90Data = toDisp(pointD90Data);
+            pointBacData = toDisp(pointBacData);
+            pointCData = toDisp(pointCData);
 
             const yMinorStep = yStep > 0.1 ? 0.1 : yStep / 2;
             const yTicksConfig = {
@@ -3641,10 +3630,11 @@ function initEdometricModule() {
                 chart.data.datasets[2].data = pointB;
                 chart.data.datasets[3].data = lineABData;
                 chart.data.datasets[4].data = lineACData;
-                chart.data.datasets[5].data = pointD90Data;
+                chart.data.datasets[5].data = pointCData;
                 chart.data.datasets[6].data = pointA0;
-                chart.data.datasets[7].data = auxConstructionData;
-                chart.data.datasets[8].data = auxPointsData;
+                chart.data.datasets[7].data = dropData;
+                chart.data.datasets[8].data = pointBacData;
+                chart.data.datasets[9].data = level100Data;
                 chart.options.scales.x.max = xRightEdge;
                 chart.options.scales.y.min = yAxisMin;
                 chart.options.scales.y.max = yAxisMax;
@@ -3661,13 +3651,14 @@ function initEdometricModule() {
                     datasets: [
                         { label: 'Lettura (interpolata)', data: curveData, borderColor: '#1E507F', backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 0, tension: 0 },
                         { label: 'Punti di prova', data: rawData, borderColor: '#1E507F', backgroundColor: '#ffffff', borderWidth: 2, pointRadius: 4, showLine: false },
-                        { label: 'Punto B (fine tratto iniziale)', data: pointB, borderColor: '#4a5568', backgroundColor: '#4a5568', pointRadius: 5, showLine: false },
+                        { label: 'Fine tratto lineare (scelta)', data: pointB, borderColor: '#4a5568', backgroundColor: '#4a5568', pointRadius: 5, showLine: false },
                         { label: 'Retta AB (tratto iniziale)', data: lineABData, borderColor: '#dd6b20', borderWidth: 2, pointRadius: 0, tension: 0 },
-                        { label: 'Retta AC (1.15×AB)', data: lineACData, borderColor: '#805ad5', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, tension: 0 },
-                        { label: 'Punto C (U=90%)', data: pointD90Data, borderColor: '#38a169', backgroundColor: '#38a169', pointRadius: 6, pointStyle: 'star', showLine: false },
-                        { label: 'Punto A (U=0%, D₀)', data: pointA0, borderColor: '#e53e3e', backgroundColor: '#e53e3e', pointRadius: 6, showLine: false },
-                        { label: 'Costruzione AC (orizzontale ausiliaria, 1.15×)', data: auxConstructionData, borderColor: '#0d9488', borderWidth: 1.5, borderDash: [4, 3], pointRadius: 0, tension: 0 },
-                        { label: 'B e C ausiliari (stessa quota)', data: auxPointsData, borderColor: '#0d9488', backgroundColor: '#0d9488', pointRadius: 4, pointStyle: 'rectRot', showLine: false }
+                        { label: 'Retta AC (orizzontale, AC = 1.15·AB)', data: lineACData, borderColor: '#805ad5', borderWidth: 2, pointRadius: 0, tension: 0 },
+                        { label: 'Punto C (U=90%)', data: pointCData, borderColor: '#38a169', backgroundColor: '#38a169', pointRadius: 6, pointStyle: 'star', showLine: false },
+                        { label: 'Punto A (U=0%)', data: pointA0, borderColor: '#e53e3e', backgroundColor: '#e53e3e', pointRadius: 6, showLine: false },
+                        { label: 't90 (verticale da C)', data: dropData, borderColor: '#38a169', borderWidth: 1.5, borderDash: [4, 3], pointRadius: 0, tension: 0 },
+                        { label: 'Punto B (AB ∩ AC)', data: pointBacData, borderColor: '#805ad5', backgroundColor: '#805ad5', pointRadius: 5, pointStyle: 'rectRot', showLine: false },
+                        { label: 'U=100% (ΔH100 = 10/9·ΔH90)', data: level100Data, borderColor: '#a0aec0', borderWidth: 1.5, borderDash: [6, 4], pointRadius: 0, tension: 0 }
                     ]
                 },
                 options: {
