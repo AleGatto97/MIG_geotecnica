@@ -3354,11 +3354,16 @@ function initEdometricModule() {
             });
             // Lettura del comparatore -> deformazione δ (0 alla prima riga): se le
             // letture calano nel tempo (comparatore che si comprime) δ = L0 − L,
-            // altrimenti δ = L − L0. Cosi' la curva parte sempre da 0 e cresce.
+            // altrimenti δ = L − L0. La costruzione di Taylor lavora su δ (sempre
+            // crescente); grafico e risultati sono poi riconvertiti in letture del
+            // comparatore con disp() dentro recompute(), cosi' sull'asse y compaiono
+            // i valori letti e non gli abbassamenti.
             if (out.length >= 2) {
                 const L0 = out[0].def;
                 const dir = out[out.length - 1].def < L0 ? -1 : 1;
                 out.forEach(pt => { pt.y = dir * (pt.def - L0); });
+                out.L0 = L0;
+                out.dir = dir;
             }
             return out;
         }
@@ -3477,14 +3482,16 @@ function initEdometricModule() {
 
             const sp = buildSpline(vp);
             const xMin = vp[0].x, xMax = vp[vp.length - 1].x;
+            // δ -> lettura del comparatore (vedi validPoints)
+            const disp = y => vp.L0 + vp.dir * y;
 
             const N = 150;
-            const curveData = [];
+            let curveData = [];
             for (let i = 0; i <= N; i++) {
                 const x = xMin + (xMax - xMin) * i / N;
                 curveData.push({ x, y: splineEval(sp, x) });
             }
-            const rawData = vp.map(p => ({ x: p.x, y: p.y }));
+            let rawData = vp.map(p => ({ x: p.x, y: p.y }));
 
             const H = parseFloat(hInput.value);
             const Hval = Number.isFinite(H) && H > 0 ? H : 20;
@@ -3559,21 +3566,21 @@ function initEdometricModule() {
             }
 
             let pointA0 = [];
-            if (c0 !== null) pointA0 = [{ x: 0, y: c0 }];
+            if (c0 !== null) pointA0 = [{ x: 0, y: disp(c0) }];
 
-            c0Out.textContent = c0 !== null ? c0.toFixed(3) + ' mm' : '—';
-            m0Out.textContent = m0 !== null ? m0.toFixed(4) + ' mm/√min' : '—';
-            d90Out.textContent = y90 !== null ? y90.toFixed(3) + ' mm' : '—';
-            d100Out.textContent = d100 !== null ? d100.toFixed(3) + ' mm' : '—';
+            c0Out.textContent = c0 !== null ? disp(c0).toFixed(3) + ' mm' : '—';
+            m0Out.textContent = m0 !== null ? (vp.dir * m0).toFixed(4) + ' mm/√min' : '—';
+            d90Out.textContent = y90 !== null ? disp(y90).toFixed(3) + ' mm' : '—';
+            d100Out.textContent = d100 !== null ? disp(d100).toFixed(3) + ' mm' : '—';
             t90Out.textContent = t90 !== null ? t90.toFixed(2) + ' min' : '—';
             estOut.textContent = cvEst !== null ? formatCvM2S(cvEst) : '—';
 
             // Fondo scala "tondo" per l'asse y (deformazione), con griglia a due
             // livelli (principale ogni yStep, secondaria fissa ogni 0.1 mm), come
             // nel modulo cv-Casagrande.
-            const allYs = vp.map(p => p.y);
-            if (c0 !== null) allYs.push(c0);
-            if (y90 !== null) allYs.push(y90);
+            const allYs = vp.map(p => disp(p.y));
+            if (c0 !== null) allYs.push(disp(c0));
+            if (y90 !== null) allYs.push(disp(y90));
             const yMinData = Math.min(...allYs), yMaxData = Math.max(...allYs);
             const yPad = Math.max(0.15, (yMaxData - yMinData) * 0.1);
             const yStep = niceStep((yMaxData + yPad) - (yMinData - yPad));
@@ -3581,12 +3588,6 @@ function initEdometricModule() {
             let yAxisMax = Math.ceil((yMaxData + yPad) / yStep) * yStep;
             if (yAxisMin >= yMinData - 1e-9) yAxisMin -= yStep;
             if (yAxisMax <= yMaxData + 1e-9) yAxisMax += yStep;
-            // L'asse della deformazione parte sempre da 0 all'origine (cresce verso
-            // l'alto, come l'asse delle ascisse verso destra): non piu' invertito e
-            // non piu' tagliato sul minimo dei dati.
-            // (solo se qualche valore e' negativo, es. intercetta D0 anomala, il minimo
-            // resta quello calcolato, cosi' nulla esce dal grafico.)
-            if (yMinData >= 0) yAxisMin = 0;
 
             // Percorso della costruzione ausiliaria (verticale-orizzontale-verticale)
             // che mostra come si ottiene il punto sulla retta AC a partire da AB:
@@ -3597,12 +3598,21 @@ function initEdometricModule() {
             if (xAux !== null) {
                 auxConstructionData = [
                     { x: xAux, y: yAxisMin },
-                    { x: xAux, y: yAux },
-                    { x: xAuxC, y: yAux },
+                    { x: xAux, y: disp(yAux) },
+                    { x: xAuxC, y: disp(yAux) },
                     { x: xAuxC, y: yAxisMin }
                 ];
-                auxPointsData = [{ x: xAux, y: yAux }, { x: xAuxC, y: yAux }];
+                auxPointsData = [{ x: xAux, y: disp(yAux) }, { x: xAuxC, y: disp(yAux) }];
             }
+
+            // Dataset riportati in letture del comparatore (asse y = valori letti)
+            const toDisp = arr => arr.map(q => ({ x: q.x, y: disp(q.y) }));
+            curveData = toDisp(curveData);
+            rawData = toDisp(rawData);
+            pointB = toDisp(pointB);
+            lineABData = toDisp(lineABData);
+            lineACData = toDisp(lineACData);
+            pointD90Data = toDisp(pointD90Data);
 
             const yMinorStep = yStep > 0.1 ? 0.1 : yStep / 2;
             const yTicksConfig = {
@@ -3649,7 +3659,7 @@ function initEdometricModule() {
                 type: 'line',
                 data: {
                     datasets: [
-                        { label: 'Deformazione (interpolata)', data: curveData, borderColor: '#1E507F', backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 0, tension: 0 },
+                        { label: 'Lettura (interpolata)', data: curveData, borderColor: '#1E507F', backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 0, tension: 0 },
                         { label: 'Punti di prova', data: rawData, borderColor: '#1E507F', backgroundColor: '#ffffff', borderWidth: 2, pointRadius: 4, showLine: false },
                         { label: 'Punto B (fine tratto iniziale)', data: pointB, borderColor: '#4a5568', backgroundColor: '#4a5568', pointRadius: 5, showLine: false },
                         { label: 'Retta AB (tratto iniziale)', data: lineABData, borderColor: '#dd6b20', borderWidth: 2, pointRadius: 0, tension: 0 },
@@ -3669,7 +3679,7 @@ function initEdometricModule() {
                     animation: false,
                     scales: {
                         x: { type: 'linear', min: 0, max: xRightEdge, title: { display: true, text: '√t (√min)' } },
-                        y: { type: 'linear', min: yAxisMin, max: yAxisMax, title: { display: true, text: 'Deformazione (mm)' }, ticks: yTicksConfig, grid: yGridConfig }
+                        y: { type: 'linear', min: yAxisMin, max: yAxisMax, title: { display: true, text: 'Lettura del comparatore (mm)' }, ticks: yTicksConfig, grid: yGridConfig }
                     },
                     plugins: {
                         legend: { position: 'bottom', labels: { boxWidth: 14, font: { size: 10 } } },
