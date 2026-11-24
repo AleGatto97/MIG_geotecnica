@@ -827,7 +827,7 @@ function initFadumTool() {
 
         valB.textContent = B.toFixed(1);
         valL.textContent = L.toFixed(1);
-        valZ.textContent = Z.toFixed(1);
+        valZ.textContent = Z.toFixed(2);
 
         // Punto significativo al centro della fondazione: metodo dei quattro
         // rettangoli B/2 x L/2 con un vertice comune nel centro, da cui
