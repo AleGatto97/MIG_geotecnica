@@ -20,13 +20,13 @@
     </header>
 
     <nav class="tabs" role="tablist" aria-label="Moduli">
+        <button class="tab-btn" type="button" role="tab" data-tab="meccanica" aria-selected="false">Elementi di Meccanica</button>
         <button class="tab-btn" type="button" role="tab" data-tab="granulometria" aria-selected="false">Granulometria e Classificazione</button>
         <button class="tab-btn" type="button" role="tab" data-tab="sifonamento" aria-selected="false">L'acqua nel Terreno</button>
         <button class="tab-btn" type="button" role="tab" data-tab="tensioni" aria-selected="false">Tensioni e Deformazione nelle Terre</button>
         <button class="tab-btn" type="button" role="tab" data-tab="edometrica" aria-selected="false">Compressione Edometrica</button>
         <button class="tab-btn" type="button" role="tab" data-tab="taglio" aria-selected="false">Resistenza al Taglio</button>
         <button class="tab-btn" type="button" role="tab" data-tab="differenziale" aria-selected="false">Cedimenti delle Fondazioni</button>
-        <button class="tab-btn" type="button" role="tab" data-tab="meccanica" aria-selected="false">Elementi di Meccanica</button>
     </nav>
 
     <main class="dashboard">
@@ -190,7 +190,7 @@
                     </div>
                     <div class="control-group">
                         <label for="fadum-z">Profondità del punto Z (m): <span id="val-fadum-z">3.00</span></label>
-                        <input type="range" id="fadum-z" min="1" max="10" step="0.25" value="3.0">
+                        <input type="range" id="fadum-z" min="0.25" max="10" step="0.25" value="3.0">
                     </div>
                     <p class="gran-small-note">Punto significativo al centro della fondazione: si applica il metodo dei quattro rettangoli, ciascuno B/2 &times; L/2 con un vertice comune nel punto centrale.</p>
                     <div class="sif-readout">

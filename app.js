@@ -797,10 +797,10 @@ function initFadumTool() {
     const ctx = canvas ? canvas.getContext('2d') : null;
     let chart = null;
 
-    // Estensione dell'abaco: m da 0.05 a 10 in scala log (copre ampiamente il
-    // range di m,n ottenibile dagli slider B/L/Z), Is da 0 a 0.28 (l'asintoto
+    // Estensione dell'abaco: m da 0.05 a 40 in scala log (copre il range di m,n
+    // ottenibile dagli slider B/L/Z, fino a Z = 0.25 m con B,L grandi), Is da 0 a 0.28 (l'asintoto
     // teorico per m,n grandi è 0.25).
-    const X_MIN = 0.05, X_MAX = 10, Y_MAX = 0.28;
+    const X_MIN = 0.05, X_MAX = 40, Y_MAX = 0.28;
 
     // Famiglia di curve di riferimento a n costante, gli stessi valori di n
     // tipicamente stampati sull'abaco di Fadum nei testi di geotecnica.
